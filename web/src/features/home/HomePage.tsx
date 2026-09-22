@@ -3,13 +3,13 @@ import { AppHeader, QuickAction } from '@/components/navigation/navigation';
 import { FloatingCreateButton, LinkButton } from '@/design-system/Button';
 import { Card, KpiCard } from '@/design-system/Card';
 import { EmptyState, ErrorState, LoadingBlock } from '@/design-system/feedback';
-import { Grid, PageContainer, Section, Stack } from '@/design-system/layout';
+import { Grid, PageContainer, Section } from '@/design-system/layout';
 import { Money } from '@/design-system/Typography';
 import { todayIso } from '@/domain/dates';
 import { useEvents, useHomeSummary, useUpcomingPayments } from '@/features/queries';
 import { formatDate, formatMoney, formatNumber, formatWeekday } from '@/lib/format';
 import { EventCard } from '@/features/events/components/EventCard';
-import { UpcomingPaymentRow } from '@/features/payments/components/UpcomingPaymentRow';
+import { PaymentTimeline, UpcomingPaymentRow } from '@/features/payments/components/UpcomingPaymentRow';
 import styles from './HomePage.module.css';
 
 // Home = Control Room (Book 05 §4, ADR-018/019/020/021). KPIs on top, active events, the four
@@ -43,19 +43,19 @@ export function HomePage() {
           )}
         </section>
 
-        <Section title="אירועים פעילים" action={<LinkButton to="/events" variant="ghost" compact>כל האירועים</LinkButton>}>
+        <Section className={styles.focal} title="אירועים פעילים" action={<LinkButton to="/events" variant="ghost" compact>כל האירועים</LinkButton>}>
           {events.isLoading ? <LoadingBlock rows={2} height="160px" />
             : events.error ? <ErrorState onRetry={() => void events.refetch()} retrying={events.isFetching} />
               : events.data && events.data.length === 0 ? (
                 <EmptyState title="אין אירועים פעילים" action={<LinkButton to="/events/new" variant="primary" icon={Plus}>צור אירוע</LinkButton>} />
               ) : (
                 <Grid columns={2}>
-                  {events.data?.map((e) => <EventCard key={e.id} event={e} />)}
+                  {events.data?.map((e, i) => <EventCard key={e.id} event={e} featured={i === 0} />)}
                 </Grid>
               )}
         </Section>
 
-        <Section title="גישה מהירה">
+        <Section className={styles.calm} title="גישה מהירה">
           <div className={styles.quick}>
             <QuickAction to="/artists" label="אמנים וליין־אפ" icon={Mic2} tone="teal" />
             <QuickAction to="/categories" label="קטגוריות" icon={FolderTree} tone="success" />
@@ -73,24 +73,20 @@ export function HomePage() {
               : payments.data && payments.data.length === 0 ? (
                 <EmptyState compact title="אין תשלומים קרובים" />
               ) : (
-                <Card padded={false}>
-                  <ul className={styles.paymentList}>
-                    {payments.data?.map((p) => <UpcomingPaymentRow key={p.paymentId} payment={p} />)}
-                  </ul>
-                </Card>
+                <PaymentTimeline>
+                  {payments.data?.map((p) => <UpcomingPaymentRow key={p.paymentId} payment={p} />)}
+                </PaymentTimeline>
               )}
         </Section>
 
         {summary.data && summary.data.activeEventsCount > 0 && (
-          <Section title="סיכום כספי — אירועים פעילים">
-            <Card>
-              <Stack gap="1">
-                <dl className={styles.summary}>
-                  <div><dt>הוצאות מתוכננות</dt><dd><Money value={summary.data.plannedExpenses} /></dd></div>
-                  <div><dt>הוצאות מוסכמות</dt><dd><Money value={summary.data.agreedExpenses} /></dd></div>
-                  <div><dt>שולם</dt><dd><Money value={summary.data.paidTotal} /></dd></div>
-                </dl>
-              </Stack>
+          <Section className={styles.open} title="סיכום כספי — אירועים פעילים">
+            <Card variant="summary">
+              <dl className={styles.summary}>
+                <div><dt>הוצאות מתוכננות</dt><dd><Money value={summary.data.plannedExpenses} /></dd></div>
+                <div><dt>הוצאות מוסכמות</dt><dd><Money value={summary.data.agreedExpenses} /></dd></div>
+                <div><dt>שולם</dt><dd><Money value={summary.data.paidTotal} /></dd></div>
+              </dl>
             </Card>
           </Section>
         )}

@@ -37,6 +37,16 @@ export function formatWeekday(iso: string | null | undefined): string | null {
   return weekdayFmt.format(new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))));
 }
 
+const monthShortFmt = new Intl.DateTimeFormat('he-IL', { month: 'short', timeZone: 'UTC' });
+
+/** Day + short month for a date chip ("24" / "ספט׳"); null for a missing date. */
+export function formatDayMonth(iso: string | null | undefined): { day: string; month: string } | null {
+  if (!iso) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return null;
+  return { day: String(Number(m[3])), month: monthShortFmt.format(new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])))) };
+}
+
 /** Show length in Hebrew, same wording as the legacy formatter. */
 export function formatDuration(minutes: number | null | undefined): string | null {
   if (!minutes || minutes <= 0) return null;

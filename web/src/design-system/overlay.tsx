@@ -1,10 +1,12 @@
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Button, IconButton } from './Button';
 import { cx } from './Typography';
 import styles from './overlay.module.css';
 
-// Overlays (Book 06 §21–§22, ADR-058). Built on the native <dialog>: top layer, inert page
+// Overlays (Book 06 §21–§22, ADR-058). Rendered through a portal into <body>, so a sheet opened
+// from a closed accordion (its body is `hidden`) still shows. Built on the native <dialog>: top layer, inert page
 // behind it, Escape handled, focus returned to the opener on close.
 
 function useModalDialog(open: boolean, onRequestClose: () => void) {
@@ -57,7 +59,8 @@ interface BottomSheetProps {
 export function BottomSheet({ open, title, onRequestClose, children, footer, description }: BottomSheetProps) {
   const ref = useModalDialog(open, onRequestClose);
   const titleId = useId();
-  return (
+  return createPortal(
+
     <dialog ref={ref} className={cx(styles.dialog, styles.sheet)} aria-labelledby={titleId}>
       {open && (
         <div className={styles.frame}>
@@ -73,7 +76,8 @@ export function BottomSheet({ open, title, onRequestClose, children, footer, des
           {footer && <footer className={styles.footer}>{footer}</footer>}
         </div>
       )}
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }
 
@@ -101,7 +105,8 @@ export function AlertDialog({
   const ref = useModalDialog(open, onCancel);
   const titleId = useId();
   const bodyId = useId();
-  return (
+  return createPortal(
+
     <dialog ref={ref} role="alertdialog" className={cx(styles.dialog, styles.alert)} aria-labelledby={titleId} aria-describedby={body ? bodyId : undefined}>
       {open && (
         <div className={styles.alertFrame}>
@@ -116,6 +121,7 @@ export function AlertDialog({
           </div>
         </div>
       )}
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

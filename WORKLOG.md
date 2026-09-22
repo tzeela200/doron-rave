@@ -868,3 +868,13 @@ Push כולל `vercel.json`.
   ב-hover ותחתית עובדות מובחנת; Accordion/Sheet/Dialog — 200ms (מכבד reduced-motion).
 - `web/vercel.json`: SPA rewrite + `sw.js` no-cache.
 - אימות: tsc · ESLint · 61 בדיקות · build · 9 מסכים × 7 רוחבים (320–1440) בלי גלישה.
+
+
+## 2026-09-22g — Visual Rhythm + Top Design Review (לא נדחף)
+
+- טוקנים: שלוש שכבות צל, סקאלת כותרות רחבה, meta/caption, אייקון 22, Tile 44, compact 48 בנייד, ease-out חלק.
+- בית: כרטיס אירוע מוביל 136px, KPI בהיררכיה חזקה, קיצורים עם Accent, Timeline תשלומים, סיכום עם מפרידים, קצב ריווח משתנה, סימן מותג 56px.
+- כרטיס אירוע: תלוש מחורר, תג ימים מודגש, כותרת 20/22. ניהול: Service tiles. ניווט: מחוון מונפש.
+- מסך אירוע: מוכנות → Accordion (פתוח כשמוגדר). **באג שתוקן:** Sheet שנפתח מכפתור של Accordion סגור היה בתוך גוף מוסתר —
+  Sheet/Dialog עברו ל-portal.
+- אימות: tsc · ESLint · 61 בדיקות · build · 9 מסכים × 7 רוחבים בלי גלישה (נמצאו ותוקנו: ערך KPI שלילי ב-320, כפתורי הערות ב-320) · אין פקד נמוך מ-44 בנייד.

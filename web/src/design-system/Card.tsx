@@ -46,8 +46,12 @@ export type Tone = 'neutral' | 'success' | 'warning' | 'error' | 'accent';
 export type IconTone = 'brand' | 'teal' | 'success' | 'warning' | 'danger' | 'neutral';
 
 /** Icon Tile (V3 §6): 40px, soft background, icon in the semantic colour. KPI, shortcuts, headers. */
-export function IconTile({ icon, tone = 'brand', className }: { icon: LucideIcon; tone?: IconTone; className?: string }) {
-  return <span className={cx(styles.tile, styles[`tile-${tone}`], className)}><Icon icon={icon} size="sm" /></span>;
+export function IconTile({ icon, tone = 'brand', size = 'md', className }: { icon: LucideIcon; tone?: IconTone; size?: 'md' | 'lg'; className?: string }) {
+  return (
+    <span className={cx(styles.tile, size === 'lg' && styles.tileLg, styles[`tile-${tone}`], className)}>
+      <Icon icon={icon} size="sm" />
+    </span>
+  );
 }
 
 interface KpiCardProps {
@@ -65,12 +69,14 @@ interface KpiCardProps {
 /** V3 §6: Icon Tile → Label → Value → secondary line. The card stays white. */
 export function KpiCard({ label, value, empty, meta, icon, tone = 'brand', negative }: KpiCardProps) {
   return (
-    <div className={cx(styles.card, styles.surface, styles.kpi)}>
-      {icon && <IconTile icon={icon} tone={tone} />}
-      <div className={styles.kpiBody}>
-        <Label as="p" className={styles.kpiLabel}>{label}</Label>
-        <Metric empty={empty} negative={negative} className={styles.kpiValue}>{value}</Metric>
-        {meta && <div className={styles.kpiMeta}>{meta}</div>}
+    <div className={cx(styles.card, styles.surface, styles.raised, styles.kpi)}>
+      <div className={styles.kpiInner}>
+        {icon && <IconTile icon={icon} tone={tone} size="lg" />}
+        <div className={styles.kpiBody}>
+          <Label as="p" className={styles.kpiLabel}>{label}</Label>
+          <Metric empty={empty} negative={negative} className={styles.kpiValue}>{value}</Metric>
+          {meta && <div className={styles.kpiMeta}>{meta}</div>}
+        </div>
       </div>
     </div>
   );

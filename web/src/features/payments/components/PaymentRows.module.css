@@ -9,11 +9,48 @@
 .link { transition: background-color var(--motion-fast) var(--ease-out); }
 @media (hover: hover) { .link:hover { background: var(--color-surface-subtle); } }
 .link:active { background: var(--color-surface-secondary); }
-.main { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
-.title { font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
-.sub { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.main { display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; }
+.title { font-weight: var(--font-weight-semibold); font-size: var(--font-size-body-lg); overflow-wrap: anywhere; }
+.sub { font-size: var(--font-size-meta); color: var(--color-text-secondary); }
 .badges { display: flex; flex-wrap: wrap; gap: var(--space-0-5); margin-block-start: var(--space-0-5); }
 .end { display: flex; align-items: center; gap: var(--space-0-5); flex: none; }
-.amount { font-weight: var(--font-weight-semibold); }
+.amount { font-weight: var(--font-weight-bold); color: var(--color-text-strong); }
 .chevron { color: var(--color-text-muted); }
 .actions { display: flex; gap: var(--space-0-5); flex: none; }
+
+/* Timeline (Top Design Review §5): rail on the inline-start, a dot per payment, each payment a
+   small secondary-elevation card. Overdue dots turn red; the text badge still says it. */
+.timeline { position: relative; display: flex; flex-direction: column; gap: var(--space-1-5); padding-inline-start: var(--space-3); }
+.timeline::before {
+  content: ''; position: absolute; inset-block: var(--space-3); inset-inline-start: 7px;
+  inline-size: 2px; border-radius: var(--radius-pill); background: var(--color-border-default);
+}
+.tlItem { position: relative; }
+.tlItem::before {
+  content: ''; position: absolute; inset-inline-start: calc(-1 * var(--space-3) + 2px); inset-block-start: 28px;
+  inline-size: 12px; block-size: 12px; border-radius: var(--radius-circle);
+  background: var(--color-surface-primary); border: 3px solid var(--color-brand-primary);
+}
+.tlOverdue::before { border-color: var(--color-danger); }
+.tlCard {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--row-pad) var(--card-padding);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-primary);
+  box-shadow: var(--shadow-1);
+  color: inherit;
+  transition: transform var(--motion-accordion) var(--ease-out), box-shadow var(--motion-accordion) var(--ease-out);
+}
+@media (hover: hover) { .tlCard:hover { box-shadow: var(--shadow-2); transform: translateX(-2px); } }
+.tlCard:active { transform: scale(var(--press-scale)); }
+.tlCard .main { flex: 1; }
+.dateChip {
+  flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  inline-size: 52px; block-size: 56px; border-radius: var(--radius-md);
+  background: var(--color-surface-secondary);
+}
+.tlOverdue .dateChip { background: var(--color-danger-soft); color: var(--color-danger); }
+.dateDay { font-size: var(--font-size-section); font-weight: var(--font-weight-bold); line-height: 1; color: var(--color-text-strong); }
+.tlOverdue .dateDay { color: var(--color-danger); }
+.dateMonth { font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-block-start: var(--space-0-5); }
+.amountLg { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); color: var(--color-text-strong); }

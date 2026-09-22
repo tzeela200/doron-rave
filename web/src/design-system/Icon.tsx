@@ -2,13 +2,13 @@ import type { LucideIcon } from 'lucide-react';
 import styles from './Icon.module.css';
 
 // The only icon entry point (Book 02 §6, Book 06 §6, ADR-014). Lucide only; sizes from tokens;
-// colour is currentColor. Design System v2: one stroke weight (1.75px, absolute, so a 16px and a
-// 20px icon draw the same line) and one size — 20px, or 16px when set inline with small text.
+// colour is currentColor. One stroke weight (1.75px, absolute, so a 16px and a 22px icon draw
+// the same line) and one size — 22px, or 16px when set inline with small text.
 // Directional icons are authored with their LTR meaning ("next" =
 // ChevronRight) and mirrored automatically under dir="rtl".
 
 export type IconSize = 'xs' | 'sm';
-const PX: Record<IconSize, number> = { xs: 16, sm: 20 };
+const PX: Record<IconSize, number> = { xs: 16, sm: 22 };
 const STROKE = 1.75;
 
 interface IconProps {

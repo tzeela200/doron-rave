@@ -3,7 +3,7 @@
   max-inline-size: var(--content-max);
   margin-inline: auto;
   padding-inline: var(--page-gutter);
-  padding-block: var(--space-2) var(--space-6);
+  padding-block: var(--space-3) var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--section-gap);
@@ -33,7 +33,7 @@
   .dcols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-.section { display: flex; flex-direction: column; gap: var(--space-1-5); min-inline-size: 0; }
+.section { display: flex; flex-direction: column; gap: var(--section-head-gap); min-inline-size: 0; }
 .sectionHeader { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); min-block-size: var(--touch-target); }
 .sectionHeading { display: flex; flex-direction: column; min-inline-size: 0; }
 .sectionMeta { font-size: var(--font-size-label); color: var(--color-text-secondary); }
@@ -50,13 +50,16 @@
   align-items: center;
   gap: var(--space-1) var(--space-1-5);
   padding: var(--space-1) var(--card-padding);
-  border: var(--border-default);
+  border: 1px solid transparent;
   border-radius: var(--radius-card);
   background: var(--color-surface-primary);
-  transition: box-shadow var(--motion-base) var(--ease-out);
+  box-shadow: var(--shadow-1);
+  transition: box-shadow var(--motion-accordion) var(--ease-out);
 }
-@media (hover: hover) { .collapseCard:hover { box-shadow: var(--shadow); } }
-.collapseCardOpen { box-shadow: var(--shadow); }
+@media (hover: hover) { .collapseCard:hover { box-shadow: var(--shadow-2); } }
+.collapseCardOpen { box-shadow: var(--shadow-2); }
+.collapseHeader:active .chevron { transform: scale(.9); }
+.collapseCardOpen .collapseHeader:active .chevron { transform: rotate(180deg) scale(.9); }
 .collapseHeading { margin: 0; font: inherit; flex: 1 1 220px; min-inline-size: 0; }
 .collapseHeader {
   display: flex;
@@ -75,7 +78,7 @@
 .collapseMeta { font-size: var(--font-size-label); line-height: var(--line-height-label); color: var(--color-text-secondary); }
 .chevron { flex: none; color: var(--color-text-secondary); transition: transform var(--motion-accordion) var(--ease-out); }
 .chevronOpen { transform: rotate(180deg); }
-.collapseAction { flex: none; margin-inline-start: auto; }
-.collapseBody { display: flex; flex-direction: column; gap: var(--space-1-5); min-inline-size: 0; animation: collapse-in var(--motion-accordion) var(--ease-out); }
+.collapseAction { flex: 0 1 auto; max-inline-size: 100%; margin-inline-start: auto; }
+.collapseBody { display: flex; flex-direction: column; gap: var(--space-2); min-inline-size: 0; animation: collapse-in var(--motion-accordion) var(--ease-out); }
 .collapseBody[hidden] { display: none; }
 @keyframes collapse-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

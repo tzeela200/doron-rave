@@ -6,8 +6,22 @@
 }
 .quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); }
 @media (min-width: 600px) { .quick { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.paymentList { display: flex; flex-direction: column; }
-.summary { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1-5); }
-.summary div { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
-.summary dt { font-size: var(--font-size-caption); color: var(--color-text-secondary); }
-.summary dd { margin: 0; font-weight: var(--font-weight-semibold); font-size: var(--font-size-body); }
+/* Summary (Review §6): three large figures divided by hairlines */
+.summary { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.summary div {
+  display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0;
+  padding-inline: var(--space-2);
+}
+.summary div + div { border-inline-start: 1px solid var(--color-border-default); }
+.summary div:first-child { padding-inline-start: 0; }
+.summary dt { font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); letter-spacing: .02em; color: var(--color-text-secondary); }
+.summary dd {
+  margin: 0; font-weight: var(--font-weight-bold); color: var(--color-text-strong);
+  font-size: clamp(16px, 4.4vw, var(--font-size-h2)); letter-spacing: -.01em; white-space: nowrap;
+}
+
+/* Rhythm (Review §9): not every gap is the same. The events region opens with extra air (focal),
+   shortcuts sit a little closer (calm), the summary closes the page with room around it. */
+.focal { margin-block-start: var(--space-2); }
+.calm { margin-block-start: calc(-1 * var(--space-1)); }
+.open { margin-block-start: var(--space-2); }

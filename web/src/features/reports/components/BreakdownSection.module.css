@@ -5,7 +5,7 @@
 .amount { font-weight: var(--font-weight-semibold); }
 .contacts { display: flex; flex-direction: column; }
 .contact {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--space-1-5);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-0-5) var(--space-1-5);
   padding: var(--space-1-5) var(--card-padding);
   border-block-end: var(--border-default);
 }

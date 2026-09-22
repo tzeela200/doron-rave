@@ -11,7 +11,7 @@
 .navItem { display: flex; }
 .navLink {
   flex: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-0-5);
   min-block-size: var(--bottom-nav-height);
   padding-inline: var(--space-0-5);
   color: var(--color-text-secondary);
@@ -21,24 +21,38 @@
   line-height: 1.2;
 }
 .navLabel { max-inline-size: 100%; overflow-wrap: anywhere; }
-.navActive { color: var(--color-brand-text); font-weight: var(--font-weight-semibold); }
-.navActive::before {
+.navLink { position: relative; transition: color var(--motion-accordion) var(--ease-out); }
+/* Active indicator (Review §7): a bar that grows in, plus a soft pill behind the icon on phones */
+.navLink::before {
   content: '';
   position: absolute;
   inset-block-start: 0;
-  inline-size: var(--space-4);
+  inline-size: var(--space-5);
   block-size: 3px;
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  border-radius: 0 0 var(--radius-pill) var(--radius-pill);
   background: var(--color-brand-primary);
+  transform: scaleX(0);
+  opacity: 0;
+  transition: transform var(--motion-accordion) var(--ease-out), opacity var(--motion-accordion) var(--ease-out);
 }
-.navLink { position: relative; }
+.navIcon {
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: 56px; block-size: 30px; border-radius: var(--radius-pill);
+  transition: background-color var(--motion-accordion) var(--ease-out);
+}
+.navActive { color: var(--color-brand-text); font-weight: var(--font-weight-bold); }
+.navActive::before { transform: scaleX(1); opacity: 1; }
+.navActive .navIcon { background: var(--color-brand-soft); }
+@media (hover: hover) { .navLink:not(.navActive):hover { color: var(--color-text-primary); } }
 
 /* Desktop: the same destinations as a top bar (no sidebar — ADR-017) */
 @media (min-width: 1024px) {
   .bottomNav { inset-block-end: auto; inset-block-start: 0; border-block-start: 0; border-block-end: var(--border-default); padding: 0; }
   .navList { display: flex; justify-content: center; gap: var(--space-1); padding-inline: var(--page-gutter); }
   .navLink { flex-direction: row; gap: var(--space-1); min-block-size: 56px; padding-inline: var(--space-2); font-size: var(--font-size-label); }
-  .navActive::before { inset-block-start: auto; inset-block-end: 0; inline-size: 100%; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+  .navLink::before { inset-block-start: auto; inset-block-end: 0; inline-size: 100%; border-radius: var(--radius-pill) var(--radius-pill) 0 0; }
+  .navIcon { inline-size: auto; block-size: auto; }
+  .navActive .navIcon { background: transparent; }
 }
 
 .header {
@@ -58,9 +72,8 @@
   padding-block: var(--space-1);
 }
 .headerTitles { flex: 1; min-inline-size: 0; }
-.headerTitle { font-size: var(--font-size-h2); line-height: var(--line-height-h2); font-weight: var(--font-weight-bold); color: var(--color-text-strong); letter-spacing: -.01em; overflow-wrap: anywhere; }
-@media (min-width: 600px) { .headerTitle { font-size: var(--font-size-h1); line-height: var(--line-height-h1); } }
-.headerSubtitle { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.headerTitle { font-size: var(--font-size-page); line-height: var(--line-height-h1); font-weight: var(--font-weight-bold); color: var(--color-text-strong); letter-spacing: -.015em; overflow-wrap: anywhere; }
+.headerSubtitle { font-size: var(--font-size-meta); color: var(--color-text-secondary); margin-block-start: 2px; }
 .headerAction { flex: none; }
 
 .back {
@@ -72,23 +85,36 @@
 @media (hover: hover) { .back:hover { background: var(--color-surface-secondary); } }
 
 .quick {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1);
-  min-block-size: 96px;
-  padding: var(--space-1-5) var(--space-1);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1-5);
+  min-block-size: 112px;
+  padding: var(--space-2) var(--space-1);
   border-radius: var(--radius-lg);
-  border: var(--border-default);
+  border: 1px solid transparent;
   background: var(--color-surface-primary);
+  box-shadow: var(--shadow-1);
   text-align: center;
-  transition: transform var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
+  cursor: pointer;
+  transition: transform var(--motion-accordion) var(--ease-out), box-shadow var(--motion-accordion) var(--ease-out);
 }
 /* Book 02 V3 §7: each tile carries a different canonical Accent Soft; text stays dark, the tile
-   never becomes a saturated button. */
-.quick-brand { background: var(--color-brand-soft); border-color: transparent; }
-.quick-teal { background: var(--color-teal-soft); border-color: transparent; }
-.quick-success { background: var(--color-success-soft); border-color: transparent; }
-.quick-warning { background: var(--color-warning-soft); border-color: transparent; }
-.quick .quickTile { background: var(--color-surface-primary); box-shadow: var(--shadow); }
-@media (hover: hover) { .quick:hover { box-shadow: var(--shadow); transform: translateY(-2px); } }
-.quick:active { transform: none; }
-.quickLabel { font-size: var(--font-size-label); font-weight: var(--font-weight-bold); line-height: 1.3; color: var(--color-text-strong); }
-.brandMark { flex: none; border-radius: var(--radius-control); box-shadow: var(--shadow); }
+   never becomes a saturated button. Neutral tiles stay white. */
+.quick-brand { background: var(--color-brand-soft); }
+.quick-teal { background: var(--color-teal-soft); }
+.quick-success { background: var(--color-success-soft); }
+.quick-warning { background: var(--color-warning-soft); }
+.quick .quickTile { background: var(--color-surface-primary); box-shadow: var(--shadow-1); }
+.quick-neutral .quickTile { background: var(--color-surface-secondary); box-shadow: none; }
+@media (hover: hover) { .quick:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); } }
+.quick:active { transform: scale(var(--press-scale)); box-shadow: var(--shadow-1); }
+.quickLabel { font-size: var(--font-size-meta); font-weight: var(--font-weight-semibold); line-height: 1.3; color: var(--color-text-strong); }
+
+/* Service tile (Management, Review §14): taller, start-aligned, more air, a quiet chevron */
+.service {
+  align-items: flex-start; justify-content: space-between; text-align: start;
+  min-block-size: 132px; padding: var(--space-3) var(--card-padding);
+}
+.service .quickLabel { font-size: var(--font-size-body-lg); font-weight: var(--font-weight-bold); }
+.serviceFoot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); inline-size: 100%; }
+.serviceChevron { color: var(--color-text-muted); transition: transform var(--motion-accordion) var(--ease-out); }
+@media (hover: hover) { .service:hover .serviceChevron { transform: translateX(-3px); } }
+.brandMark { flex: none; inline-size: 56px; block-size: 56px; border-radius: var(--radius-lg); box-shadow: var(--shadow-2); margin-inline-end: var(--space-0-5); }

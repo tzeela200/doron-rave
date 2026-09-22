@@ -17,18 +17,18 @@ export function ManagementPage() {
       <PageContainer>
         <Section title="ישויות">
           <div className={styles.grid}>
-            <QuickAction to="/artists" label="אמנים" icon={Mic2} tone="teal" />
-            <QuickAction to="/categories" label="קטגוריות" icon={FolderTree} tone="success" />
-            <QuickAction to="/vendors" label="ספקים" icon={Truck} tone="neutral" />
-            <QuickAction to="/events" label="אירועים" icon={CalendarDays} tone="brand" />
+            <QuickAction variant="service" to="/artists" label="אמנים" icon={Mic2} tone="teal" />
+            <QuickAction variant="service" to="/categories" label="קטגוריות" icon={FolderTree} tone="success" />
+            <QuickAction variant="service" to="/vendors" label="ספקים" icon={Truck} tone="neutral" />
+            <QuickAction variant="service" to="/events" label="אירועים" icon={CalendarDays} tone="brand" />
           </div>
         </Section>
         <Section title="כספים ודוחות">
           <div className={styles.grid}>
-            <QuickAction to="/payments" label="תשלומים" icon={CircleDollarSign} />
-            <QuickAction to="/management/payment-methods" label="אמצעי תשלום" icon={CreditCard} />
-            <QuickAction to="/compare" label="השוואת אירועים" icon={GitCompareArrows} />
-            <QuickAction to="/management/archive" label="ארכיון" icon={Archive} />
+            <QuickAction variant="service" to="/payments" label="תשלומים" icon={CircleDollarSign} />
+            <QuickAction variant="service" to="/management/payment-methods" label="אמצעי תשלום" icon={CreditCard} />
+            <QuickAction variant="service" to="/compare" label="השוואת אירועים" icon={GitCompareArrows} />
+            <QuickAction variant="service" to="/management/archive" label="ארכיון" icon={Archive} />
           </div>
         </Section>
         <Section title="חשבון">

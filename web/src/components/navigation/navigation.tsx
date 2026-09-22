@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { ArrowLeft, CalendarDays, House, Mic2, Settings2 } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChevronLeft, House, Mic2, Settings2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { IconTile, type IconTone } from '@/design-system/Card';
@@ -24,7 +24,7 @@ export function BottomNavigation() {
         {NAV_ITEMS.map((item) => (
           <li key={item.to} className={styles.navItem}>
             <NavLink to={item.to} end={item.end} className={({ isActive }) => cx(styles.navLink, isActive && styles.navActive)}>
-              <Icon icon={item.icon} size="sm" />
+              <span className={styles.navIcon}><Icon icon={item.icon} size="sm" /></span>
               <span className={styles.navLabel}>{item.label}</span>
             </NavLink>
           </li>
@@ -78,7 +78,7 @@ export function AppHeader({ title, back, action, subtitle, brand = false }: AppH
     <header className={styles.header}>
       <div className={styles.headerInner}>
         {back && <BackButton fallback={back} />}
-        {brand && <img src="/icons/icon-192.png" alt="" width={48} height={48} className={styles.brandMark} />}
+        {brand && <img src="/icons/icon-192.png" alt="" width={56} height={56} className={styles.brandMark} />}
         <div className={styles.headerTitles}>
           <h1 className={styles.headerTitle}>{title}</h1>
           {subtitle && <div className={styles.headerSubtitle}>{subtitle}</div>}
@@ -95,13 +95,26 @@ interface QuickActionProps {
   icon: LucideIcon;
   /** Each shortcut gets its own soft accent from the V3 palette (Book 02 V3 §7). */
   tone?: IconTone;
+  /** "service" = the taller, start-aligned management tile. */
+  variant?: 'shortcut' | 'service';
 }
 
 /** Home / management shortcut tile (Book 06 §29). */
-export function QuickAction({ to, label, icon, tone = 'neutral' }: QuickActionProps) {
+export function QuickAction({ to, label, icon, tone = 'neutral', variant = 'shortcut' }: QuickActionProps) {
+  if (variant === 'service') {
+    return (
+      <Link to={to} className={cx(styles.quick, styles.service, styles[`quick-${tone}`])}>
+        <IconTile icon={icon} tone={tone} size="lg" className={styles.quickTile} />
+        <span className={styles.serviceFoot}>
+          <span className={styles.quickLabel}>{label}</span>
+          <Icon icon={ChevronLeft} size="xs" className={styles.serviceChevron} />
+        </span>
+      </Link>
+    );
+  }
   return (
     <Link to={to} className={cx(styles.quick, styles[`quick-${tone}`])}>
-      <IconTile icon={icon} tone={tone} className={styles.quickTile} />
+      <IconTile icon={icon} tone={tone} size="lg" className={styles.quickTile} />
       <span className={styles.quickLabel}>{label}</span>
     </Link>
   );

@@ -1,7 +1,7 @@
-import { CalendarDays, MapPin, Mic2 } from 'lucide-react';
-import { Badge, InteractiveCard } from '@/design-system/Card';
+import { CalendarDays, ChevronLeft, Clock, MapPin, Mic2 } from 'lucide-react';
+import { InteractiveCard } from '@/design-system/Card';
 import { Icon } from '@/design-system/Icon';
-import { CardTitle, Money } from '@/design-system/Typography';
+import { CardTitle, Money, cx } from '@/design-system/Typography';
 import { formatDate, formatDaysLabel, formatNumber } from '@/lib/format';
 import type { EventSummaryVM } from '../data/eventsRepository';
 import { EventBanner } from './EventBanner';
@@ -11,18 +11,30 @@ import styles from './EventCard.module.css';
 // when it exists. Forecast and actual never share a label (ADR-060).
 // Book 02 V3 §8: the shared EventBanner on top — the first thing the eye meets.
 
-export function EventCard({ event, state }: { event: EventSummaryVM; state?: unknown }) {
+/** `featured` = the Home focal card (nearest active event): taller banner carrying the name and a
+ *  visual "open" cue. The whole card is still the single link. */
+export function EventCard({ event, state, featured = false }: { event: EventSummaryVM; state?: unknown; featured?: boolean }) {
   const { pnl } = event;
   const days = formatDaysLabel(event.isArchived ? null : event.daysUntil);
   const hasForecast = pnl.forecastProfit !== null;
   const forecastLoss = hasForecast && (pnl.forecastProfit ?? 0) < 0;
 
   return (
-    <InteractiveCard to={`/events/${event.id}`} state={state} className={styles.card}>
-      <EventBanner>{days && <Badge tone={event.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
-      <div className={styles.head}>
-        <CardTitle as="h3" className={styles.title}>{event.name}</CardTitle>
-      </div>
+    <InteractiveCard to={`/events/${event.id}`} state={state} className={cx(styles.card, featured && styles.featured)}>
+      <EventBanner hero={featured}>
+        {days && <span className={styles.days}><Icon icon={Clock} size="xs" />{days}</span>}
+        {featured && (
+          <span className={styles.heroFoot}>
+            <CardTitle as="h3" className={styles.heroTitle}>{event.name}</CardTitle>
+            <span className={styles.cta}>לאירוע<Icon icon={ChevronLeft} size="xs" /></span>
+          </span>
+        )}
+      </EventBanner>
+      {!featured && (
+        <div className={styles.head}>
+          <CardTitle as="h3" className={styles.title}>{event.name}</CardTitle>
+        </div>
+      )}
       <div className={styles.meta}>
         <span className={styles.metaItem}><Icon icon={CalendarDays} size="xs" /><span className="num">{formatDate(event.eventDate)}</span></span>
         {event.location && <span className={styles.metaItem}><Icon icon={MapPin} size="xs" /><bdi>{event.location}</bdi></span>}

@@ -136,7 +136,7 @@ export function NotesSection({ entityType, entityId, allowReminders = true }: { 
       icon={StickyNote}
       meta={openReminders > 0 ? `${formatNumber(openReminders)} תזכורות פתוחות` : undefined}
       action={
-        <Inline gap="0-5" wrap={false}>
+        <Inline gap="0-5">
           <Button variant="secondary" compact icon={Plus} onClick={() => setAdding('note')}>הוסף הערה</Button>
           {allowReminders && <Button variant="ghost" compact icon={Bell} onClick={() => setAdding('reminder')}>הוסף תזכורת</Button>}
         </Inline>

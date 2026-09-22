@@ -12,9 +12,9 @@
 }
 @media (hover: hover) { .row:hover { background: var(--color-surface-subtle); } }
 .time { font-weight: var(--font-weight-semibold); white-space: nowrap; }
-.main { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.main { display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; }
 .name { font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
-.sub { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.sub { font-size: var(--font-size-meta); color: var(--color-text-secondary); }
 .end { display: flex; flex-direction: column; align-items: flex-end; font-size: var(--font-size-label); white-space: nowrap; }
 .overlap { display: inline-flex; align-items: center; gap: var(--space-0-5); font-size: var(--font-size-caption); color: var(--color-text-primary); }
 .overlap svg { color: var(--color-warning); }

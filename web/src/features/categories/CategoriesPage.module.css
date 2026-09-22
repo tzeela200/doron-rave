@@ -14,7 +14,7 @@
 }
 .parentText { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; }
 .parentName { font-weight: var(--font-weight-bold); font-size: var(--font-size-body-lg); }
-.meta { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.meta { font-size: var(--font-size-meta); color: var(--color-text-secondary); }
 .chevron { color: var(--color-text-secondary); transition: transform var(--motion-accordion) var(--ease-out); flex: none; }
 .chevronOpen { transform: rotate(180deg); }
 .body { padding: 0 var(--card-padding) var(--card-padding); animation: reveal var(--motion-accordion) var(--ease-out); }

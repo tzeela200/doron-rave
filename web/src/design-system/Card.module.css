@@ -6,31 +6,41 @@
 }
 .padded { padding: var(--card-padding); }
 .surface { background: var(--color-surface-primary); }
-.summary { background: var(--color-surface-primary); box-shadow: var(--shadow-sm); }
+/* Elevation: Flat (default, border) · Secondary (.raised) · Primary (.summary). Raised surfaces
+   drop the border and let the shadow define them. */
+.summary { background: var(--color-surface-primary); border-color: transparent; box-shadow: var(--shadow-2); }
+.raised { border-color: transparent; box-shadow: var(--shadow-1); }
 .subtle { background: var(--color-surface-secondary); border-color: transparent; }
 
 .interactive {
   color: inherit;
-  transition: border-color var(--motion-fast) var(--ease-out), background-color var(--motion-fast) var(--ease-out);
+  transition: transform var(--motion-accordion) var(--ease-out), box-shadow var(--motion-accordion) var(--ease-out), border-color var(--motion-fast) var(--ease-out);
 }
-@media (hover: hover) { .interactive:hover { border-color: var(--color-border-strong); box-shadow: var(--shadow-sm); } }
-.interactive:active { background: var(--color-surface-secondary); }
+@media (hover: hover) { .interactive:hover { border-color: var(--color-border-strong); box-shadow: var(--shadow-1); } }
+.interactive:active { transform: scale(var(--press-scale)); }
 
 .kpi {
   padding: var(--card-padding);
   min-block-size: var(--kpi-min-height);
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1-5);
+  container-type: inline-size;
+  transition: transform var(--motion-accordion) var(--ease-out), box-shadow var(--motion-accordion) var(--ease-out);
+}
+@media (hover: hover) { .kpi:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); } }
+/* Narrow card (2-up on a phone): tile above the text. Wide card: tile beside it, like a
+   dashboard stat — the number becomes the line the eye lands on. */
+.kpiInner { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; min-inline-size: 0; }
+@container (min-width: 260px) {
+  .kpiInner { flex-direction: row; align-items: flex-start; gap: var(--space-2); }
 }
 .kpiBody { display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; container-type: inline-size; flex: 1; }
-.kpiLabel { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); letter-spacing: .01em; }
+.kpiLabel { font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); letter-spacing: .02em; }
 /* V3 §6: the value never breaks (₪ stays attached); it scales down with a narrow card instead. */
-.kpiBody .kpiValue { white-space: nowrap; font-size: clamp(18px, 18cqi, var(--kpi-value-max)); line-height: 1.15; }
+.kpiBody .kpiValue { white-space: nowrap; font-size: clamp(16px, 17cqi, var(--kpi-value-max)); line-height: 1.1; margin-block: 2px var(--space-0-5); }
 .kpiMeta {
   margin-block-start: auto;
   padding-block-start: var(--space-1);
-  border-block-start: var(--border-default);
+  border-block-start: 1px solid color-mix(in srgb, var(--color-border-default) 55%, transparent);
   font-size: var(--font-size-caption); color: var(--color-text-secondary); line-height: var(--line-height-label);
 }
 .kpiValue + .kpiMeta { margin-block-start: var(--space-1); }
@@ -45,6 +55,7 @@
   border-radius: var(--radius-control);
   flex: none;
 }
+.tileLg { inline-size: var(--tile-lg); block-size: var(--tile-lg); border-radius: var(--radius-lg); }
 .tile-brand { background: var(--color-brand-soft); color: var(--color-brand-primary); }
 .tile-teal { background: var(--color-teal-soft); color: var(--color-teal); }
 .tile-success { background: var(--color-success-soft); color: var(--color-success); }

@@ -79,11 +79,19 @@
   --focus-ring: 2px solid var(--color-brand-primary);
   --focus-offset: 2px;
 
-  /* Shadow — V3 §11: one soft shadow, only where separation is needed; borders first. */
+  /* Shadow — V3 §11: one soft shadow, only where separation is needed; borders first.
+     Elevation rhythm: canvas → flat surfaces (border only: lists, accordions, forms) →
+     raised focal surfaces (border + shadow: KPI, event cards, event hero, shortcuts). */
   --shadow-none: none;
-  --shadow: 0 2px 12px rgba(0, 0, 0, .05);
-  --shadow-sm: var(--shadow);
-  --shadow-md: var(--shadow);
+  /* Three layers (Top Design Review §10/§16, user decision 2026-09-22 — supersedes V3's single
+     shadow): Flat = border only · Secondary = barely lifted · Primary = the focal surface.
+     Softer than before, but with real depth; raised surfaces drop the border. */
+  --shadow-1: 0 1px 2px rgba(17, 24, 39, .04), 0 2px 8px -2px rgba(17, 24, 39, .05);
+  --shadow-2: 0 1px 2px rgba(17, 24, 39, .04), 0 12px 32px -14px rgba(17, 24, 39, .18);
+  --shadow-hover: 0 2px 4px rgba(17, 24, 39, .05), 0 16px 36px -14px rgba(17, 24, 39, .22);
+  --shadow: var(--shadow-1);
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
   --color-backdrop: rgba(17, 24, 39, .4);
 
   /* Typography (Book 02 §5.1) — Heebo only */
@@ -96,7 +104,11 @@
   --font-size-body-lg: 16px;
   --font-size-body: 15px;
   --font-size-label: 14px;
-  --font-size-caption: 13px;
+  --font-size-meta: 13px;     /* metadata under titles (dates, places, counts) */
+  --font-size-caption: 12px;  /* smallest: helper lines, KPI labels */
+  /* Screen-level titles — a wider step between page, section and card (Top Design Review §8) */
+  --font-size-page: 26px;
+  --font-size-section: 20px;
   --font-size-metric: 26px;
   --line-height-display: 1.2;
   --line-height-h1: 1.25;
@@ -110,21 +122,25 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* Icons — v2: one size (20px), 16px only inline with small text */
+  /* Icons — one stroke; 22px standard, 16px inline with small text (Review §12) */
   --icon-xs: 16px;
-  --icon-sm: 20px;
+  --icon-sm: 22px;
 
   /* Component geometry */
   --control-height: 48px;
-  --control-height-compact: 40px;
+  --control-height-compact: 48px; /* phones: never below 48 (Review §19); 40 from tablet up */
   --touch-target: 48px;
   --accordion-header-min: 60px;
   --kpi-min-height: 112px;
   --kpi-icon: 40px;
-  --kpi-value-max: 30px;
+  --tile-lg: 44px;          /* focal tiles: KPI, shortcuts (Review §12: 40–44) */
+  --row-pad: var(--space-2); /* list rows breathe: 16px block padding */
+  --section-head-gap: var(--space-2);
+  --kpi-value-max: 34px;
   --badge-height: 28px;
   --progress-height: 8px;
   --event-banner-height: 72px; /* V3 §8: 48–72px */
+  --event-hero-height: 136px;  /* Home focal card — Top Design Review §1 (120–140), user decision */
   --textarea-min: 120px;
   --bottom-nav-height: 64px;
   --app-header-height: 56px;
@@ -142,8 +158,9 @@
   --motion-base: 180ms;
   --motion-slow: 240ms;
   --motion-accordion: 200ms;
-  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-out: cubic-bezier(.22, .61, .36, 1); /* smooth ease-out */
   --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --press-scale: .985;
 
   --z-sticky: 20;
   --z-nav: 30;
@@ -154,6 +171,8 @@
 /* Tablet (Book 02 §3.3) */
 @media (min-width: 600px) {
   :root {
+    --control-height-compact: 40px;
+    --font-size-page: 28px;
     --page-gutter: var(--space-3);
     --section-gap: var(--space-5);
     --card-gap: var(--space-2);
@@ -171,5 +190,7 @@
     --card-padding: var(--space-3);
     --content-max: 1200px;
     --kpi-value-max: 36px;
+    --font-size-page: 32px;
+    --font-size-section: 22px;
   }
 }

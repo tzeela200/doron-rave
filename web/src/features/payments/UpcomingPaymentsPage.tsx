@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { AppHeader } from '@/components/navigation/navigation';
-import { Card } from '@/design-system/Card';
 import { EmptyState, ErrorState, LoadingBlock } from '@/design-system/feedback';
 import { PageContainer, Section, Stack } from '@/design-system/layout';
 import { SegmentedControl } from '@/design-system/patterns';
 import { Caption } from '@/design-system/Typography';
 import { ATTENTION_HORIZON_DAYS } from '@/domain/constants';
 import { useUpcomingPayments } from '@/features/queries';
-import { UpcomingPaymentRow } from './components/UpcomingPaymentRow';
+import { PaymentTimeline, UpcomingPaymentRow } from './components/UpcomingPaymentRow';
 
 // PAYMENTS — upcoming / overdue (Book 07 F29, Book 04 §13–§14). Facts, sorted by due date.
 // "This week" uses the central ATTENTION_HORIZON_DAYS constant. Nothing becomes a task.
@@ -38,9 +37,7 @@ export function UpcomingPaymentsPage() {
             : payments.error ? <ErrorState onRetry={() => void payments.refetch()} retrying={payments.isFetching} />
               : rows.length === 0 ? <EmptyState compact title="אין תשלומים בטווח הזה" />
                 : (
-                  <Card padded={false}>
-                    <ul>{rows.map((p) => <UpcomingPaymentRow key={p.paymentId} payment={p} />)}</ul>
-                  </Card>
+                  <PaymentTimeline>{rows.map((p) => <UpcomingPaymentRow key={p.paymentId} payment={p} />)}</PaymentTimeline>
                 )}
         </Section>
       </PageContainer>

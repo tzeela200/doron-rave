@@ -24,8 +24,9 @@ import styles from './EventDetailsPage.module.css';
 // EVENT_DETAILS — the work centre of one event (Book 05 §7, ADR-026). Fixed order:
 // Hero → Financial → Readiness → Expenses/Payments → Income/Tickets → Artists/Line-up →
 // Vendors → Notes/Reminders → Reports. Each section loads and fails on its own.
-// UX addendum 2026-09-22 §6: hero, financial overview and readiness stay visible; expenses,
-// income, line-up, vendors, notes and reports are accordions, closed, with count + summary.
+// Summary → Financial → accordions (Top Design Review §13, UX addendum §6). Readiness is the first
+// accordion and opens by itself when a list is defined (addendum: "פתוח אם מוגדר"); the rest are
+// closed with count + summary. Hero and financial overview stay visible.
 
 export function EventDetailsPage() {
   const { eventId = '' } = useParams();
@@ -92,9 +93,8 @@ export function EventDetailsPage() {
           <EventFinancialOverview event={e} />
         </Section>
 
-        <ReadinessSection eventId={e.id} />
-
         <CollapsibleSections>
+          <ReadinessSection eventId={e.id} />
           <ExpensesSection eventId={e.id} totals={{ count: e.expensesCount, agreed: e.agreedExpenses, paid: e.paidTotal, remaining: e.remainingToPay }} />
           <IncomeSection eventId={e.id} incomeTotal={e.incomeTotal} />
           <LineupSection eventId={e.id} artistsCount={e.artistsCount} />

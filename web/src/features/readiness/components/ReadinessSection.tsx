@@ -125,7 +125,12 @@ export function ReadinessSection({ eventId }: { eventId: string }) {
     <Section
       id="readiness"
       title="מוכנות הפקה"
-      action={r?.defined ? <Button variant="ghost" compact icon={Pencil} onClick={() => setEditing(true)}>ערוך רשימה</Button> : undefined}
+      icon={ListChecks}
+      defaultOpen={!!r?.defined}
+      meta={r ? (r.defined ? `${formatNumber(r.percent)}% · ${formatNumber(r.closed)} מתוך ${formatNumber(r.total)} סגורים` : 'לא הוגדרה רשימה') : undefined}
+      action={r?.defined
+        ? <Button variant="ghost" compact icon={Pencil} onClick={() => setEditing(true)}>ערוך רשימה</Button>
+        : r ? <Button variant="secondary" compact icon={ListChecks} onClick={() => setEditing(true)}>הגדר רשימה</Button> : undefined}
     >
       {readiness.isLoading ? <LoadingBlock rows={1} height="96px" />
         : readiness.error ? <ErrorState onRetry={readiness.refetch} />

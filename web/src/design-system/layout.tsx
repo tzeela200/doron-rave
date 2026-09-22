@@ -59,6 +59,8 @@ interface SectionProps {
   count?: number;
   /** Header icon, shown in the collapsible (accordion) form. */
   icon?: LucideIcon;
+  /** Accordion form only: open by default. May turn true once data arrives; a user toggle wins. */
+  defaultOpen?: boolean;
   /** Optional right-aligned (inline-end) action, e.g. an "add" button. */
   action?: ReactNode;
   meta?: ReactNode;
@@ -85,8 +87,10 @@ export function Section(props: SectionProps) {
   return collapsible && props.title ? <CollapsibleSection {...props} /> : <StaticSection {...props} />;
 }
 
-function CollapsibleSection({ title, count, icon, action, meta, children, className, id, titleAs: H = 'h2' }: SectionProps) {
-  const [open, setOpen] = useState(false);
+function CollapsibleSection({ title, count, icon, action, meta, children, className, id, defaultOpen = false, titleAs: H = 'h2' }: SectionProps) {
+  const [toggled, setToggled] = useState<boolean | null>(null);
+  const open = toggled ?? defaultOpen;
+  const setOpen = (f: (o: boolean) => boolean) => setToggled(f(open));
   const bodyId = useId();
   return (
     <section className={cx(styles.section, className)} id={id}>

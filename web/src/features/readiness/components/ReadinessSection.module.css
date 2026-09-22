@@ -14,4 +14,4 @@ a.row:hover { background: var(--color-surface-subtle); }
 .parent { color: var(--color-text-secondary); }
 .chevron { color: var(--color-text-muted); flex: none; }
 .group { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
-.groupTitle { padding: 0; font-weight: var(--font-weight-semibold); font-size: var(--font-size-label); color: var(--color-text-secondary); margin-block-end: var(--space-0-5); }
+.groupTitle { padding: 0; font-weight: var(--font-weight-semibold); font-size: var(--font-size-meta); color: var(--color-text-secondary); margin-block-end: var(--space-0-5); }
