@@ -1,0 +1,18 @@
+.muted { color: var(--color-text-secondary); font-size: var(--font-size-label); font-weight: var(--font-weight-regular); }
+.metric { font-weight: var(--font-weight-semibold); margin-block-end: var(--space-1); }
+.values { margin: 0; display: flex; flex-direction: column; }
+.value { display: flex; justify-content: space-between; gap: var(--space-2); min-block-size: var(--space-6); align-items: center; border-block-end: var(--border-default); }
+.value:last-child { border-block-end: 0; }
+.value dt { color: var(--color-text-secondary); font-size: var(--font-size-body); min-inline-size: 0; overflow-wrap: anywhere; }
+.value dd { margin: 0; font-weight: var(--font-weight-semibold); text-align: end; }
+.catBlock { margin-block-start: var(--space-1-5); }
+.desktop { display: none; }
+@media (min-width: 1024px) {
+  .mobile { display: none; }
+  .desktop { display: block; }
+}
+.table { inline-size: 100%; border-collapse: collapse; font-size: var(--font-size-body); }
+.table th, .table td { padding: var(--space-1-5) var(--space-2); text-align: start; border-block-end: var(--border-default); }
+.table thead th { background: var(--color-surface-secondary); font-weight: var(--font-weight-semibold); }
+.table tbody th { font-weight: var(--font-weight-medium); color: var(--color-text-secondary); }
+.table td { font-variant-numeric: tabular-nums; font-weight: var(--font-weight-semibold); }

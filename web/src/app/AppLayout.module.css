@@ -1,0 +1,15 @@
+.shell { min-block-size: 100dvh; }
+.main {
+  padding-block-end: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-8));
+}
+@media (min-width: 1024px) {
+  .main { padding-block-start: 56px; padding-block-end: var(--space-8); }
+}
+.boot { padding: var(--page-gutter); max-inline-size: var(--content-max); margin-inline: auto; }
+.banner { padding: var(--space-1) var(--page-gutter) 0; max-inline-size: var(--content-max); margin-inline: auto; }
+@media (min-width: 1024px) { .banner { padding-block-start: calc(56px + var(--space-1)); } }
+.skip {
+  position: absolute; inset-inline-start: var(--space-1); inset-block-start: -100px; z-index: var(--z-toast);
+  background: var(--color-surface-primary); padding: var(--space-1) var(--space-2); border-radius: var(--radius-md); border: var(--border-strong);
+}
+.skip:focus { inset-block-start: var(--space-1); }

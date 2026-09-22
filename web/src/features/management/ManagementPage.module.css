@@ -1,0 +1,9 @@
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); }
+@media (min-width: 600px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); min-block-size: var(--touch-target); padding: var(--space-1) var(--card-padding); border-block-end: var(--border-default); }
+.row:last-child { border-block-end: 0; }
+.rowName { flex: 1; min-inline-size: 0; display: inline-flex; align-items: center; gap: var(--space-1); }
+.list { display: flex; flex-direction: column; }
+.form { display: flex; flex-direction: column; gap: var(--space-2); }
+.link { color: inherit; display: flex; flex-direction: column; gap: 2px; flex: 1; min-inline-size: 0; }
+.sub { font-size: var(--font-size-label); color: var(--color-text-secondary); }

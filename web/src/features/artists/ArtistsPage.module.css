@@ -1,0 +1,22 @@
+.item { border-block-end: var(--border-default); }
+.item:last-child { border-block-end: 0; }
+.row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-1-5);
+  min-block-size: var(--touch-target);
+  padding: var(--space-1-5) var(--card-padding);
+  color: inherit;
+}
+@media (hover: hover) { .row:hover { background: var(--color-surface-subtle); } }
+.row:active { background: var(--color-surface-secondary); }
+.main { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.name { font-weight: var(--font-weight-semibold); font-size: var(--font-size-body-lg); overflow-wrap: anywhere; }
+.sub { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.phone { display: inline-flex; align-items: center; gap: 2px; }
+.chevron { color: var(--color-text-muted); flex: none; }
+.dl { margin: 0; display: flex; flex-direction: column; }
+.dlRow { display: flex; justify-content: space-between; gap: var(--space-2); min-block-size: var(--touch-target); align-items: center; border-block-end: var(--border-default); }
+.dlRow:last-child { border-block-end: 0; }
+.dlRow dt { color: var(--color-text-secondary); font-size: var(--font-size-body); flex: none; }
+.dlRow dd { margin: 0; text-align: end; white-space: pre-wrap; overflow-wrap: anywhere; min-inline-size: 0; }
+.tel { color: var(--color-brand-text); font-weight: var(--font-weight-medium); display: inline-flex; min-block-size: var(--touch-target); align-items: center; }
+.formStack { display: flex; flex-direction: column; gap: var(--space-2); }

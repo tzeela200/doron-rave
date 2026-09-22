@@ -1,0 +1,13 @@
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); }
+.kpis > :first-child { grid-column: 1 / -1; }
+@media (min-width: 600px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kpis > :first-child { grid-column: auto; }
+}
+.quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); }
+@media (min-width: 600px) { .quick { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.paymentList { display: flex; flex-direction: column; }
+.summary { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1-5); }
+.summary div { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.summary dt { font-size: var(--font-size-caption); color: var(--color-text-secondary); }
+.summary dd { margin: 0; font-weight: var(--font-weight-semibold); font-size: var(--font-size-body); }

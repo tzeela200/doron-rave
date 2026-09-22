@@ -1,0 +1,109 @@
+.field { display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+.fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+.label { font-size: var(--font-size-label); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); line-height: var(--line-height-label); padding: 0; }
+.required { color: var(--color-text-secondary); }
+.hint { font-size: var(--font-size-caption); color: var(--color-text-secondary); line-height: var(--line-height-label); }
+.error { font-size: var(--font-size-label); color: var(--color-danger); line-height: var(--line-height-label); font-weight: var(--font-weight-medium); }
+
+.control {
+  inline-size: 100%;
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-2);
+  padding-block: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-primary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body-lg); /* ≥16px so iOS never zooms on focus */
+  line-height: 1.4;
+  text-align: start;
+  transition: border-color var(--motion-fast) var(--ease-out);
+  appearance: none;
+}
+@media (hover: hover) { .control:hover:not(:disabled):not(:focus) { border-color: var(--color-border-hover); } }
+.control:focus-visible { outline: var(--focus-ring); outline-offset: 0; border-color: var(--color-brand-primary); }
+.control[aria-invalid='true'] { border: var(--border-danger); }
+.control:disabled { background: var(--color-surface-secondary); border-color: var(--color-border-default); color: var(--color-text-secondary); }
+.control[readonly] { background: var(--color-bg-app); border-color: var(--color-border-default); }
+.control::placeholder { color: var(--color-text-muted); }
+
+.textarea { min-block-size: var(--textarea-min); padding-block: var(--space-1-5); resize: vertical; line-height: var(--line-height-body); }
+.number { font-variant-numeric: tabular-nums lining-nums; }
+input[dir='ltr'].number { text-align: end; }
+
+.adorned { position: relative; }
+.withAdornment { padding-inline-start: var(--space-5); }
+.adornment {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--space-2);
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+/* The money input is dir=ltr so digits type naturally; its inline-start (left) holds ₪,
+   which is the inline-end of the RTL wrapper. */
+
+.selectWrap, .combo { position: relative; }
+.select { padding-inline-end: var(--space-5); cursor: pointer; }
+.selectChevron { position: absolute; inset-block-start: 50%; inset-inline-end: var(--space-1-5); transform: translateY(-50%); color: var(--color-text-secondary); pointer-events: none; }
+
+.search { position: relative; }
+.searchIcon { position: absolute; inset-block-start: 50%; inset-inline-start: var(--space-1-5); transform: translateY(-50%); color: var(--color-text-secondary); pointer-events: none; }
+.searchControl { padding-inline-start: var(--space-6); padding-inline-end: var(--space-6); }
+.searchControl::-webkit-search-cancel-button { display: none; }
+.clear {
+  position: absolute; inset-block-start: 0; inset-inline-end: 0;
+  inline-size: var(--touch-target); block-size: var(--touch-target);
+  display: flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; color: var(--color-text-secondary); border-radius: var(--radius-md);
+}
+
+.check {
+  display: flex; align-items: center; gap: var(--space-1-5);
+  min-block-size: var(--touch-target);
+  cursor: pointer;
+  position: relative;
+}
+.checkInput { position: absolute; opacity: 0; inline-size: 1px; block-size: 1px; }
+.checkBox {
+  flex: none;
+  inline-size: 22px; block-size: 22px; /* Book 02 §10.1: checkbox 20–22px */
+  border-radius: 6px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-primary);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: transparent;
+}
+.checkInput:checked + .checkBox { background: var(--color-brand-hover); border-color: var(--color-brand-hover); color: var(--color-surface-primary); }
+.checkInput:focus-visible + .checkBox { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+.checkInput:disabled + .checkBox { opacity: .55; }
+.checkText { display: flex; flex-direction: column; font-size: var(--font-size-body-lg); }
+
+.switchRow {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  inline-size: 100%; min-block-size: var(--touch-target);
+  border: 0; background: transparent; padding: 0; text-align: start; font-size: var(--font-size-body-lg);
+}
+.switchTrack {
+  flex: none; inline-size: 44px; block-size: 24px; /* Book 02 §10.1: switch ≥44×24 */
+  border-radius: var(--radius-pill); background: var(--color-border-strong);
+  display: flex; align-items: center; padding: 2px; transition: background var(--motion-fast) var(--ease-out);
+}
+.switchThumb { inline-size: 20px; block-size: 20px; border-radius: 50%; background: var(--color-surface-primary); box-shadow: var(--shadow-sm); transition: transform var(--motion-fast) var(--ease-out); }
+.switchOn { background: var(--color-brand-hover); }
+:global([dir='rtl']) .switchOn .switchThumb { transform: translateX(-20px); }
+:global([dir='ltr']) .switchOn .switchThumb { transform: translateX(20px); }
+
+.comboList {
+  position: absolute; z-index: var(--z-overlay);
+  inset-inline: 0; inset-block-start: calc(100% + var(--space-0-5));
+  max-block-size: 280px; overflow-y: auto;
+  background: var(--color-surface-primary);
+  border: var(--border-default); border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+  padding-block: var(--space-0-5);
+}
+.comboOption { display: flex; flex-direction: column; justify-content: center; min-block-size: var(--touch-target); padding-inline: var(--space-2); cursor: pointer; }
+.comboActive, .comboOption[aria-selected='true'] { background: var(--color-brand-soft); }
+.comboEmpty { padding: var(--space-2); color: var(--color-text-secondary); font-size: var(--font-size-label); }

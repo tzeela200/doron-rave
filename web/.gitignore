@@ -1,0 +1,12 @@
+node_modules
+dist
+dev-dist
+*.local
+.env
+.env.*
+!.env.example
+coverage
+# migration snapshots contain real business data and phone numbers (Book 09 §43)
+migration/snapshot
+migration/runs
+migration/.build

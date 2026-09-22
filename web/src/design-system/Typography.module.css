@@ -1,0 +1,19 @@
+.pageTitle { font-size: var(--font-size-h1); line-height: var(--line-height-h1); font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
+.sectionTitle { font-size: var(--font-size-h3); line-height: var(--line-height-h3); font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
+.cardTitle { font-size: var(--font-size-title); line-height: var(--line-height-title); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); overflow-wrap: anywhere; }
+.body { font-size: var(--font-size-body-lg); line-height: var(--line-height-body); color: var(--color-text-primary); }
+.bodyCompact { font-size: var(--font-size-body); line-height: var(--line-height-body); color: var(--color-text-primary); }
+.meta { font-size: var(--font-size-label); line-height: var(--line-height-label); color: var(--color-text-secondary); }
+.caption { font-size: var(--font-size-caption); line-height: var(--line-height-label); color: var(--color-text-secondary); }
+.label { font-size: var(--font-size-label); line-height: var(--line-height-label); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); }
+.metric {
+  font-size: var(--font-size-metric);
+  line-height: var(--line-height-h2);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.metricLarge { font-size: var(--font-size-display); line-height: var(--line-height-display); }
+.negative { color: var(--color-danger); }
+.muted { color: var(--color-text-secondary); font-weight: var(--font-weight-medium); font-size: var(--font-size-body); }
+.money { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }

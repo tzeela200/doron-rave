@@ -1,0 +1,2 @@
+.meta { display: inline-flex; align-items: center; gap: var(--space-0-5); color: var(--color-text-secondary); font-size: var(--font-size-body); }
+.notes { color: var(--color-text-secondary); white-space: pre-wrap; }

@@ -1,0 +1,14 @@
+.list { display: flex; flex-direction: column; }
+.item {
+  display: flex; align-items: flex-start; gap: var(--space-1);
+  padding: var(--space-1-5) var(--card-padding);
+  border-block-end: var(--border-default);
+}
+.item:last-child { border-block-end: 0; }
+.body { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--space-0-5); }
+.content { white-space: pre-wrap; overflow-wrap: anywhere; }
+.done { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--color-text-secondary); text-decoration: line-through; }
+.meta { font-size: var(--font-size-caption); color: var(--color-text-secondary); }
+.error { font-size: var(--font-size-label); color: var(--color-danger); }
+.actions { display: flex; flex: none; }
+.form { display: flex; flex-direction: column; gap: var(--space-2); }

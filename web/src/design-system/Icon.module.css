@@ -1,0 +1,2 @@
+.icon { flex: none; color: currentColor; }
+:global([dir='rtl']) .directional { transform: scaleX(-1); }

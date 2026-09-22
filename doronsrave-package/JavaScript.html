@@ -1,0 +1,955 @@
+<script>
+/* ============================================================
+   DORON'S RAVE — Frontend App Logic (Vanilla JS, no build step)
+   כל התקשורת עם השרת עוברת דרך callServer() -> google.script.run
+   ============================================================ */
+
+var appState = {
+  screen: 'home',          // home | events | eventCreate | eventDetails | categories | vendors | artists | settings
+  currentEventId: null,
+  cache: {
+    categories: [],
+    vendors: [],
+    artists: []
+  }
+};
+
+var root = document.getElementById('screen-root');
+
+/* ---------- Server call wrapper ---------- */
+function callServer(fnName) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  return new Promise(function (resolve, reject) {
+    google.script.run
+      .withSuccessHandler(function (response) {
+        if (response && response.success) {
+          resolve(response.data);
+        } else {
+          reject((response && response.error) || 'אירעה שגיאה לא צפויה.');
+        }
+      })
+      .withFailureHandler(function (err) {
+        reject((err && err.message) || 'לא הצלחנו ליצור קשר עם השרת. בדקי את החיבור ונסי שוב.');
+      })
+      [fnName].apply(null, args);
+  });
+}
+
+/* ---------- Formatting helpers ---------- */
+function formatCurrency(n) {
+  n = Number(n) || 0;
+  return n.toLocaleString('he-IL', { maximumFractionDigits: 0 }) + ' ₪';
+}
+function formatDate(d) {
+  if (!d) return '';
+  var date = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(date.getTime())) return String(d);
+  var dd = String(date.getDate()).padStart(2, '0');
+  var mm = String(date.getMonth() + 1).padStart(2, '0');
+  var yyyy = date.getFullYear();
+  return dd + '.' + mm + '.' + yyyy;
+}
+function toDateInputValue(d) {
+  if (!d) return '';
+  var date = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(date.getTime())) return '';
+  var mm = String(date.getMonth() + 1).padStart(2, '0');
+  var dd = String(date.getDate()).padStart(2, '0');
+  return date.getFullYear() + '-' + mm + '-' + dd;
+}
+function escapeHtml(str) {
+  if (str === undefined || str === null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/* ---------- Toast ---------- */
+var toastTimer = null;
+function showToast(message, isError) {
+  var existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.textContent = message;
+  document.getElementById('app').appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.remove(); }, 3200);
+}
+
+/* ---------- Loading state ---------- */
+function renderLoading() {
+  root.innerHTML = '<div class="loading-wrap"><div class="spinner"></div><div>טוען נתונים...</div></div>';
+}
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+function setActiveNav(screen) {
+  document.querySelectorAll('.nav-item[data-nav]').forEach(function (btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-nav') === screen);
+  });
+}
+
+function navigate(screen, params) {
+  params = params || {};
+  appState.screen = screen;
+  if (params.eventId !== undefined) appState.currentEventId = params.eventId;
+  setActiveNav(screen === 'eventDetails' ? 'events' : screen);
+  window.scrollTo(0, 0);
+
+  switch (screen) {
+    case 'home': return renderHome();
+    case 'events': return renderEvents();
+    case 'eventCreate': return renderEventCreate();
+    case 'eventDetails': return renderEventDetails(appState.currentEventId);
+    case 'categories': return renderCategoriesScreen();
+    case 'vendors': return renderVendorsScreen();
+    case 'artists': return renderArtistsScreen();
+    case 'settings': return renderSettings();
+    default: return renderHome();
+  }
+}
+
+function handleFabClick() {
+  if (appState.screen === 'eventDetails' && appState.currentEventId) {
+    openExpenseSheet(appState.currentEventId);
+  } else {
+    navigate('eventCreate');
+  }
+}
+
+function handleComingSoon(label) {
+  showToast(label + ' — יתווסף בשלב הבא של הפיתוח.');
+}
+
+/* ============================================================
+   Cache refreshers (categories / vendors / artists)
+   ============================================================ */
+function refreshCategories() {
+  return callServer('getCategories').then(function (data) {
+    appState.cache.categories = data;
+    return data;
+  });
+}
+function refreshVendors() {
+  return callServer('getVendors').then(function (data) {
+    appState.cache.vendors = data;
+    return data;
+  });
+}
+function refreshArtists() {
+  return callServer('getArtists').then(function (data) {
+    appState.cache.artists = data;
+    return data;
+  });
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function renderHome() {
+  document.getElementById('screen-title').textContent = '';
+  renderLoading();
+  callServer('getInitialData').then(function (data) {
+    appState.cache.categories = data.categories;
+    appState.cache.vendors = data.vendors;
+    appState.cache.artists = data.artists;
+
+    var html = '';
+    if (!data.recentEvent) {
+      html += emptyStateHtml('🎧', 'עדיין אין אירועים', 'צור אירוע ראשון', "navigate('eventCreate')");
+    } else {
+      html += '<div class="section-label">האירוע האחרון</div>';
+      html += eventCardHtml(data.recentEvent);
+
+      var upcomingHtml = '';
+      // תשלומים קרובים/באיחור יתווספו עם מודול Payments
+      html += '<div class="section-label">אירועים אחרונים</div>';
+      data.recentEvents.slice(1).forEach(function (ev) {
+        html += eventCardHtml(ev);
+      });
+      if (data.recentEvents.length <= 1) {
+        html += '<div class="form-hint" style="padding:8px 4px;">אין עדיין אירועים נוספים.</div>';
+      }
+    }
+    root.innerHTML = '<div class="screen">' + html + '</div>';
+  }).catch(function (err) { renderError(err, renderHome); });
+}
+
+function eventCardHtml(ev) {
+  var balanceClass = ev.balance >= 0 ? 'positive' : 'negative';
+  return '' +
+    '<div class="card pressable" onclick="navigate(\'eventDetails\', {eventId: \'' + ev.event_id + '\'})">' +
+      '<div class="event-card-top">' +
+        '<div>' +
+          '<div class="event-card-name">' + escapeHtml(ev.name) + '</div>' +
+          '<div class="event-card-meta">' + formatDate(ev.event_date) + (ev.location ? ' · ' + escapeHtml(ev.location) : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stat-row">' +
+        '<div class="stat-box"><div class="stat-label">הכנסות</div><div class="stat-value">' + formatCurrency(ev.total_income) + '</div></div>' +
+        '<div class="stat-box"><div class="stat-label">הוצאות</div><div class="stat-value">' + formatCurrency(ev.total_expenses) + '</div></div>' +
+        '<div class="stat-box"><div class="stat-label">יתרה</div><div class="stat-value ' + balanceClass + '">' + formatCurrency(ev.balance) + '</div></div>' +
+      '</div>' +
+    '</div>';
+}
+
+function emptyStateHtml(icon, text, ctaLabel, ctaOnclick) {
+  return '' +
+    '<div class="empty-state">' +
+      '<div class="empty-icon">' + icon + '</div>' +
+      '<div class="empty-text">' + escapeHtml(text) + '</div>' +
+      (ctaLabel ? '<button class="btn btn-gold" onclick="' + ctaOnclick + '">+ ' + escapeHtml(ctaLabel) + '</button>' : '') +
+    '</div>';
+}
+
+function renderError(err, retryFn) {
+  root.innerHTML = '' +
+    '<div class="screen"><div class="empty-state">' +
+      '<div class="empty-icon">⚠️</div>' +
+      '<div class="empty-text">' + escapeHtml(String(err)) + '</div>' +
+      '<button class="btn btn-secondary" onclick="(' + retryFn.name + ')()">נסה שוב</button>' +
+    '</div></div>';
+}
+
+/* ============================================================
+   EVENTS LIST
+   ============================================================ */
+function renderEvents() {
+  document.getElementById('screen-title').textContent = 'אירועים';
+  renderLoading();
+  callServer('getEvents').then(function (events) {
+    var html = '';
+    html += '<div class="form-group"><input class="form-input" id="event-search" placeholder="חיפוש אירוע לפי שם" oninput="filterEventsList()"></div>';
+    if (events.length === 0) {
+      html += emptyStateHtml('🎉', 'אין עדיין אירועים', 'צור אירוע ראשון', "navigate('eventCreate')");
+    } else {
+      html += '<div id="events-list">' + events.map(eventCardHtml).join('') + '</div>';
+    }
+    root.innerHTML = '<div class="screen">' + html + '</div>';
+    window.__allEvents = events;
+  }).catch(function (err) { renderError(err, renderEvents); });
+}
+
+function filterEventsList() {
+  var q = document.getElementById('event-search').value.trim().toLowerCase();
+  var filtered = (window.__allEvents || []).filter(function (ev) {
+    return ev.name.toLowerCase().indexOf(q) !== -1;
+  });
+  document.getElementById('events-list').innerHTML = filtered.length
+    ? filtered.map(eventCardHtml).join('')
+    : '<div class="form-hint" style="padding:16px 4px;">לא נמצאו אירועים תואמים.</div>';
+}
+
+/* ============================================================
+   CREATE EVENT
+   ============================================================ */
+function renderEventCreate() {
+  document.getElementById('screen-title').textContent = 'אירוע חדש';
+  var html = '' +
+    '<form id="event-form" onsubmit="submitEventForm(event)">' +
+      '<div class="form-group">' +
+        '<label class="form-label">שם האירוע<span class="required">*</span></label>' +
+        '<input class="form-input" name="name" required maxlength="120" placeholder="לדוגמה: DORON\'S RAVE — קיץ 2026">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">תאריך<span class="required">*</span></label>' +
+        '<input class="form-input" type="date" name="event_date" required>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">מיקום</label>' +
+        '<input class="form-input" name="location" placeholder="לדוגמה: חוף השרון">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">הערות כלליות</label>' +
+        '<textarea class="form-textarea" name="general_notes"></textarea>' +
+      '</div>' +
+      '<button class="btn btn-gold" type="submit" id="event-save-btn">צור אירוע</button>' +
+    '</form>';
+  root.innerHTML = '<div class="screen">' + html + '</div>';
+}
+
+function submitEventForm(e) {
+  e.preventDefault();
+  var btn = document.getElementById('event-save-btn');
+  if (btn.disabled) return; // מניעת Double Submit
+  btn.disabled = true;
+  btn.textContent = 'שומר...';
+
+  var form = e.target;
+  var payload = {
+    name: form.name.value,
+    event_date: form.event_date.value,
+    location: form.location.value,
+    general_notes: form.general_notes.value
+  };
+
+  callServer('createEvent', payload).then(function (created) {
+    showToast('נשמר בהצלחה');
+    navigate('eventDetails', { eventId: created.event_id });
+  }).catch(function (err) {
+    showToast(err, true);
+    btn.disabled = false;
+    btn.textContent = 'צור אירוע';
+  });
+}
+
+/* ============================================================
+   EVENT DETAILS
+   ============================================================ */
+function renderEventDetails(eventId) {
+  document.getElementById('screen-title').textContent = '';
+  renderLoading();
+  callServer('getEventDetails', eventId).then(function (data) {
+    var ev = data.event;
+    var t = data.totals;
+    var balanceClass = t.balance >= 0 ? 'positive' : 'negative';
+
+    var html = '';
+    html += '<div class="card">' +
+      '<div style="display:flex; justify-content:space-between; align-items:flex-start;">' +
+        '<div>' +
+          '<div class="event-card-name" style="font-size:19px;">' + escapeHtml(ev.name) + '</div>' +
+          '<div class="event-card-meta">' + formatDate(ev.event_date) + (ev.location ? ' · ' + escapeHtml(ev.location) : '') + '</div>' +
+        '</div>' +
+        '<button class="header-icon-btn" onclick="openEventActionsMenu(\'' + ev.event_id + '\')">⋮</button>' +
+      '</div>' +
+      (ev.general_notes ? '<div class="form-hint" style="margin-top:10px;">' + escapeHtml(ev.general_notes) + '</div>' : '') +
+    '</div>';
+
+    html += '<div class="stat-cards-grid">' +
+      '<div class="card"><div class="stat-label">סה"כ הכנסות</div><div class="stat-value">' + formatCurrency(t.total_income) + '</div></div>' +
+      '<div class="card"><div class="stat-label">סה"כ הוצאות</div><div class="stat-value">' + formatCurrency(t.total_expenses) + '</div></div>' +
+      '<div class="card"><div class="stat-label">יתרה</div><div class="stat-value ' + balanceClass + '">' + formatCurrency(t.balance) + '</div></div>' +
+      '<div class="card"><div class="stat-label">נותר לתשלום</div><div class="stat-value">' + formatCurrency(t.total_remaining) + '</div></div>' +
+    '</div>';
+
+    // Breakdown by category
+    var catEntries = Object.keys(data.expensesByCategory);
+    if (catEntries.length) {
+      html += '<div class="section-label">הוצאות לפי קטגוריה</div><div class="card">';
+      catEntries.forEach(function (cat) {
+        html += '<div class="expense-item"><div class="expense-main"><div class="expense-name">' + escapeHtml(cat) + '</div></div>' +
+                '<div class="expense-total">' + formatCurrency(data.expensesByCategory[cat]) + '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '<div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">' +
+      '<span>הוצאות</span>' +
+      '<button class="btn-ghost" onclick="openExpenseSheet(\'' + ev.event_id + '\')">+ הוסף הוצאה</button>' +
+    '</div>';
+
+    if (data.expenses.length === 0) {
+      html += emptyStateHtml('🧾', 'אין עדיין הוצאות באירוע הזה', 'הוסף הוצאה', "openExpenseSheet('" + ev.event_id + "')");
+    } else {
+      html += '<div class="card">';
+      data.expenses.forEach(function (ex) {
+        html += expenseItemHtml(ex);
+      });
+      html += '</div>';
+    }
+
+    window.__currentEventExpenses = data.expenses;
+    root.innerHTML = '<div class="screen">' + html + '</div>';
+  }).catch(function (err) { renderError(err, function () { renderEventDetails(eventId); }); });
+}
+
+function statusChipHtml(status) {
+  var cls = 'status-planned';
+  if (status === EXPENSE_STATUS_AGREED) cls = 'status-agreed';
+  if (status === EXPENSE_STATUS_PAID) cls = 'status-paid';
+  return '<span class="status-chip ' + cls + '">' + escapeHtml(status) + '</span>';
+}
+var EXPENSE_STATUS_AGREED = 'סוכם';
+var EXPENSE_STATUS_PAID = 'שולם';
+
+function expenseItemHtml(ex) {
+  var subLabel = ex.category_name || '';
+  var whoLabel = ex.artist_name || ex.vendor_name || '';
+  if (whoLabel) subLabel += ' · ' + whoLabel;
+  return '' +
+    '<div class="expense-item" onclick="openExpenseSheet(\'' + ex.event_id + '\', \'' + ex.expense_id + '\')" style="cursor:pointer;">' +
+      '<div class="expense-main">' +
+        '<div class="expense-name">' + escapeHtml(ex.name) + '</div>' +
+        '<div class="expense-sub">' + escapeHtml(subLabel) + ' &nbsp; ' + statusChipHtml(ex.computed_status) + '</div>' +
+      '</div>' +
+      '<div class="expense-amounts">' +
+        '<div class="expense-total">' + formatCurrency(ex.agreed_amount) + '</div>' +
+        '<div class="expense-remaining">נותר ' + formatCurrency(ex.remaining_amount) + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function openEventActionsMenu(eventId) {
+  var options = [
+    { label: 'ערוך אירוע', action: function () { openEventEditSheet(eventId); } },
+    { label: 'ארכב אירוע', action: function () { confirmArchiveEvent(eventId); }, danger: true }
+  ];
+  openActionSheet('פעולות אירוע', options);
+}
+
+function confirmArchiveEvent(eventId) {
+  openConfirmDialog('לארכב את האירוע?', 'האירוע יוסתר מהרשימה אך ההיסטוריה תישמר.', function () {
+    callServer('archiveEvent', eventId).then(function () {
+      showToast('נשמר בהצלחה');
+      navigate('events');
+    }).catch(function (err) { showToast(err, true); });
+  });
+}
+
+function openEventEditSheet(eventId) {
+  callServer('getEventDetails', eventId).then(function (data) {
+    var ev = data.event;
+    var body = '' +
+      '<form id="event-edit-form" onsubmit="submitEventEditForm(event, \'' + eventId + '\')">' +
+        '<div class="form-group"><label class="form-label">שם האירוע<span class="required">*</span></label>' +
+          '<input class="form-input" name="name" required value="' + escapeHtml(ev.name) + '"></div>' +
+        '<div class="form-group"><label class="form-label">תאריך<span class="required">*</span></label>' +
+          '<input class="form-input" type="date" name="event_date" required value="' + toDateInputValue(ev.event_date) + '"></div>' +
+        '<div class="form-group"><label class="form-label">מיקום</label>' +
+          '<input class="form-input" name="location" value="' + escapeHtml(ev.location) + '"></div>' +
+        '<div class="form-group"><label class="form-label">הערות כלליות</label>' +
+          '<textarea class="form-textarea" name="general_notes">' + escapeHtml(ev.general_notes) + '</textarea></div>' +
+        '<button class="btn btn-gold" type="submit" id="event-edit-save-btn">שמור שינויים</button>' +
+      '</form>';
+    openBottomSheet('עריכת אירוע', body);
+  }).catch(function (err) { showToast(err, true); });
+}
+
+function submitEventEditForm(e, eventId) {
+  e.preventDefault();
+  var btn = document.getElementById('event-edit-save-btn');
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'שומר...';
+  var form = e.target;
+  callServer('updateEvent', {
+    event_id: eventId,
+    name: form.name.value,
+    event_date: form.event_date.value,
+    location: form.location.value,
+    general_notes: form.general_notes.value
+  }).then(function () {
+    showToast('נשמר בהצלחה');
+    closeBottomSheet();
+    renderEventDetails(eventId);
+  }).catch(function (err) {
+    showToast(err, true);
+    btn.disabled = false; btn.textContent = 'שמור שינויים';
+  });
+}
+
+/* ============================================================
+   EXPENSE — Bottom Sheet (Create / Edit)
+   ============================================================ */
+var expenseSheetState = { eventId: null, expenseId: null, categoryId: null, vendorId: null, artistId: null };
+
+function openExpenseSheet(eventId, expenseId) {
+  expenseSheetState = { eventId: eventId, expenseId: expenseId || null, categoryId: null, vendorId: null, artistId: null };
+
+  Promise.all([refreshCategories(), refreshVendors(), refreshArtists()]).then(function () {
+    var existing = null;
+    if (expenseId) {
+      // נטען מתוך רשימת ההוצאות של האירוע (כבר בקאש דרך המסך) — אם לא זמין, נבקש מהשרת
+      existing = (window.__currentEventExpenses || []).filter(function (x) { return x.expense_id === expenseId; })[0];
+    }
+    if (expenseId && !existing) {
+      callServer('getExpensesForEvent', eventId).then(function (list) {
+        window.__currentEventExpenses = list;
+        existing = list.filter(function (x) { return x.expense_id === expenseId; })[0];
+        renderExpenseSheetBody(existing);
+      });
+    } else {
+      renderExpenseSheetBody(existing);
+    }
+  });
+}
+
+function renderExpenseSheetBody(existing) {
+  expenseSheetState.categoryId = existing ? existing.category_id : null;
+  expenseSheetState.vendorId = existing ? existing.vendor_id : null;
+  expenseSheetState.artistId = existing ? existing.artist_id : null;
+
+  var isArtistCategory = isCategoryArtists(expenseSheetState.categoryId);
+
+  var body = '' +
+    '<form id="expense-form" onsubmit="submitExpenseForm(event)">' +
+      '<div class="form-group">' +
+        '<label class="form-label">על מה ההוצאה?<span class="required">*</span></label>' +
+        '<input class="form-input" id="expense-name" name="name" required maxlength="150" value="' + escapeHtml(existing ? existing.name : '') + '" placeholder="לדוגמה: ציליה, DJ, גנרטור">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">סכום<span class="required">*</span></label>' +
+        '<input class="form-input" name="agreed_amount" type="number" inputmode="numeric" min="0" step="1" required value="' + (existing ? existing.agreed_amount : '') + '" placeholder="0">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">קטגוריה<span class="required">*</span></label>' +
+        '<div class="autocomplete-wrap">' +
+          '<input class="form-input" id="category-search" placeholder="בחר או הקלד קטגוריה" autocomplete="off" ' +
+            'value="' + escapeHtml(categoryNameById(expenseSheetState.categoryId)) + '" oninput="onCategorySearch(this.value)" onfocus="onCategorySearch(this.value)">' +
+          '<div id="category-list" class="autocomplete-list" style="display:none;"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-group" id="whom-field">' +
+        renderWhomFieldHtml(existing) +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">סטטוס</label>' +
+        '<div class="segmented" id="status-segmented">' +
+          '<button type="button" data-status="מתוכנן" class="' + ((!existing || existing.manual_status === 'מתוכנן') ? 'active' : '') + '" onclick="setStatusSegment(this)">מתוכנן</button>' +
+          '<button type="button" data-status="סוכם" class="' + (existing && existing.manual_status === 'סוכם' ? 'active' : '') + '" onclick="setStatusSegment(this)">סוכם</button>' +
+        '</div>' +
+        '<input type="hidden" name="manual_status" id="manual_status" value="' + (existing ? existing.manual_status : 'מתוכנן') + '">' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">מועד תשלום</label>' +
+        '<input class="form-input" name="expense_date" type="date" value="' + toDateInputValue(existing ? existing.expense_date : '') + '">' +
+      '</div>' +
+
+      '<div class="accordion-toggle" onclick="toggleExpenseDetails()">' +
+        '<span>פרטים נוספים</span><span id="details-caret">▾</span>' +
+      '</div>' +
+      '<div id="expense-extra-details" style="display:none;">' +
+        '<div class="form-group"><label class="form-label">סכום מתוכנן</label>' +
+          '<input class="form-input" name="planned_amount" type="number" min="0" step="1" value="' + (existing ? existing.planned_amount : '') + '"></div>' +
+        '<div class="form-group"><label class="form-label">מי שילם</label>' +
+          '<input class="form-input" name="paid_by" value="' + escapeHtml(existing ? existing.paid_by : '') + '"></div>' +
+        '<div class="form-group"><label class="form-label">הערות פנימיות</label>' +
+          '<textarea class="form-textarea" name="internal_notes">' + escapeHtml(existing ? existing.internal_notes : '') + '</textarea></div>' +
+        '<div class="form-hint">תשלומים ומקדמות יתווספו בשלב הבא של הפיתוח.</div>' +
+      '</div>' +
+
+      '<button class="btn btn-gold" type="submit" id="expense-save-btn" style="margin-top:12px;">שמור הוצאה</button>' +
+      (existing ? '<button type="button" class="btn btn-danger-ghost" style="margin-top:10px;" onclick="confirmArchiveExpense(\'' + existing.expense_id + '\')">מחק הוצאה</button>' : '') +
+    '</form>';
+
+  openBottomSheet(existing ? 'עריכת הוצאה' : 'הוספת הוצאה', body);
+}
+
+function isCategoryArtists(categoryId) {
+  var cat = appState.cache.categories.filter(function (c) { return c.category_id === categoryId; })[0];
+  return !!(cat && cat.name === 'אמנים');
+}
+function categoryNameById(id) {
+  var cat = appState.cache.categories.filter(function (c) { return c.category_id === id; })[0];
+  return cat ? cat.name : '';
+}
+function vendorNameById(id) {
+  var v = appState.cache.vendors.filter(function (x) { return x.vendor_id === id; })[0];
+  return v ? v.name : '';
+}
+function artistNameById(id) {
+  var a = appState.cache.artists.filter(function (x) { return x.artist_id === id; })[0];
+  return a ? a.name : '';
+}
+
+function renderWhomFieldHtml(existing) {
+  var isArtist = isCategoryArtists(expenseSheetState.categoryId);
+  var label = isArtist ? 'אמן' : 'למי משלמים?';
+  var value = isArtist ? artistNameById(expenseSheetState.artistId) : vendorNameById(expenseSheetState.vendorId);
+  return '' +
+    '<label class="form-label">' + label + '</label>' +
+    '<div class="autocomplete-wrap">' +
+      '<input class="form-input" id="whom-search" placeholder="בחר או הקלד שם" autocomplete="off" value="' + escapeHtml(value) + '" ' +
+        'oninput="onWhomSearch(this.value)" onfocus="onWhomSearch(this.value)">' +
+      '<div id="whom-list" class="autocomplete-list" style="display:none;"></div>' +
+    '</div>';
+}
+
+function toggleExpenseDetails() {
+  var el = document.getElementById('expense-extra-details');
+  var isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  document.getElementById('details-caret').textContent = isOpen ? '▾' : '▴';
+}
+
+function setStatusSegment(btn) {
+  document.querySelectorAll('#status-segmented button').forEach(function (b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('manual_status').value = btn.getAttribute('data-status');
+}
+
+/* ---- Category autocomplete ---- */
+function onCategorySearch(query) {
+  var list = document.getElementById('category-list');
+  var q = (query || '').trim().toLowerCase();
+  var matches = appState.cache.categories.filter(function (c) { return c.name.toLowerCase().indexOf(q) !== -1; });
+
+  var html = matches.map(function (c) {
+    return '<div class="autocomplete-item" onclick="selectCategory(\'' + c.category_id + '\', \'' + escapeHtml(c.name) + '\')">' + escapeHtml(c.name) + '</div>';
+  }).join('');
+
+  if (q && !appState.cache.categories.some(function (c) { return c.name.toLowerCase() === q; })) {
+    html += '<div class="autocomplete-item add-new" onclick="createCategoryInline(\'' + escapeHtml(query.trim()) + '\')">+ הוסף קטגוריה חדשה: "' + escapeHtml(query.trim()) + '"</div>';
+  }
+  list.innerHTML = html;
+  list.style.display = html ? 'block' : 'none';
+}
+
+function selectCategory(id, name) {
+  expenseSheetState.categoryId = id;
+  document.getElementById('category-search').value = name;
+  document.getElementById('category-list').style.display = 'none';
+  // אם עברנו לקטגוריית "אמנים" (או ממנה) — מרעננים את שדה "למי משלמים?"
+  document.getElementById('whom-field').innerHTML = renderWhomFieldHtml(null);
+}
+
+function createCategoryInline(name) {
+  if (!name) return;
+  callServer('saveCategory', { name: name }).then(function (created) {
+    appState.cache.categories.push(created);
+    selectCategory(created.category_id, created.name);
+    showToast('נשמר בהצלחה');
+  }).catch(function (err) { showToast(err, true); });
+}
+
+/* ---- Vendor / Artist ("who") autocomplete ---- */
+function onWhomSearch(query) {
+  var isArtist = isCategoryArtists(expenseSheetState.categoryId);
+  var source = isArtist ? appState.cache.artists : appState.cache.vendors;
+  var q = (query || '').trim().toLowerCase();
+  var matches = source.filter(function (x) { return x.name.toLowerCase().indexOf(q) !== -1; });
+  var list = document.getElementById('whom-list');
+
+  var idKey = isArtist ? 'artist_id' : 'vendor_id';
+  var html = matches.map(function (x) {
+    return '<div class="autocomplete-item" onclick="selectWhom(\'' + x[idKey] + '\', \'' + escapeHtml(x.name) + '\')">' + escapeHtml(x.name) + '</div>';
+  }).join('');
+
+  if (q && !source.some(function (x) { return x.name.toLowerCase() === q; })) {
+    var addLabel = isArtist ? 'הוסף אמן חדש' : 'הוסף ספק חדש';
+    html += '<div class="autocomplete-item add-new" onclick="createWhomInline(\'' + escapeHtml(query.trim()) + '\')">+ ' + addLabel + ': "' + escapeHtml(query.trim()) + '"</div>';
+  }
+  list.innerHTML = html;
+  list.style.display = html ? 'block' : 'none';
+}
+
+function selectWhom(id, name) {
+  var isArtist = isCategoryArtists(expenseSheetState.categoryId);
+  if (isArtist) expenseSheetState.artistId = id; else expenseSheetState.vendorId = id;
+  document.getElementById('whom-search').value = name;
+  document.getElementById('whom-list').style.display = 'none';
+}
+
+function createWhomInline(name) {
+  if (!name) return;
+  var isArtist = isCategoryArtists(expenseSheetState.categoryId);
+  var fnName = isArtist ? 'saveArtist' : 'saveVendor';
+  callServer(fnName, { name: name }).then(function (created) {
+    if (isArtist) { appState.cache.artists.push(created); selectWhom(created.artist_id, created.name); }
+    else { appState.cache.vendors.push(created); selectWhom(created.vendor_id, created.name); }
+    showToast('נשמר בהצלחה');
+  }).catch(function (err) { showToast(err, true); });
+}
+
+/* ---- Submit expense form ---- */
+function submitExpenseForm(e) {
+  e.preventDefault();
+  var btn = document.getElementById('expense-save-btn');
+  if (btn.disabled) return;
+
+  if (!expenseSheetState.categoryId) {
+    showToast('יש לבחור קטגוריה מהרשימה.', true);
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'שומר...';
+  var form = e.target;
+  var payload = {
+    event_id: expenseSheetState.eventId,
+    name: form.name.value,
+    category_id: expenseSheetState.categoryId,
+    agreed_amount: form.agreed_amount.value,
+    planned_amount: form.planned_amount ? form.planned_amount.value : '',
+    vendor_id: expenseSheetState.vendorId || '',
+    artist_id: expenseSheetState.artistId || '',
+    paid_by: form.paid_by ? form.paid_by.value : '',
+    manual_status: form.manual_status.value,
+    expense_date: form.expense_date.value,
+    internal_notes: form.internal_notes ? form.internal_notes.value : ''
+  };
+
+  var call = expenseSheetState.expenseId
+    ? callServer('updateExpense', Object.assign({ expense_id: expenseSheetState.expenseId }, payload))
+    : callServer('createExpense', payload);
+
+  call.then(function () {
+    showToast('נשמר בהצלחה');
+    closeBottomSheet();
+    renderEventDetails(expenseSheetState.eventId);
+  }).catch(function (err) {
+    showToast(err, true);
+    btn.disabled = false; btn.textContent = 'שמור הוצאה';
+  });
+}
+
+function confirmArchiveExpense(expenseId) {
+  openConfirmDialog('למחוק את ההוצאה?', 'הפעולה תסתיר אותה מהאירוע אך תשמור את הרשומה לצורכי היסטוריה.', function () {
+    callServer('archiveExpense', expenseId).then(function () {
+      showToast('נשמר בהצלחה');
+      closeBottomSheet();
+      renderEventDetails(expenseSheetState.eventId);
+    }).catch(function (err) { showToast(err, true); });
+  });
+}
+
+/* ============================================================
+   CATEGORIES SCREEN
+   ============================================================ */
+function renderCategoriesScreen() {
+  document.getElementById('screen-title').textContent = 'קטגוריות';
+  renderLoading();
+  refreshCategories().then(function (categories) {
+    var html = '<div class="card" style="padding:8px 16px;">';
+    if (categories.length === 0) {
+      html = emptyStateHtml('🏷️', 'אין עדיין קטגוריות', null, '');
+    } else {
+      categories.forEach(function (c) {
+        html += '<div class="settings-row"><div class="settings-row-label">' + escapeHtml(c.name) + '</div>' +
+          '<button class="btn-ghost" onclick="openCategoryEditSheet(\'' + c.category_id + '\', \'' + escapeHtml(c.name) + '\')">ערוך</button></div>';
+      });
+      html += '</div>';
+    }
+    html += '<button class="btn btn-secondary" style="margin-top:16px;" onclick="openCategoryCreateSheet()">+ הוסף קטגוריה</button>';
+    root.innerHTML = '<div class="screen">' + html + '</div>';
+  }).catch(function (err) { renderError(err, renderCategoriesScreen); });
+}
+
+function openCategoryCreateSheet() {
+  var body = '<form onsubmit="submitCategoryCreateForm(event)">' +
+    '<div class="form-group"><label class="form-label">שם הקטגוריה<span class="required">*</span></label>' +
+      '<input class="form-input" name="name" required autofocus></div>' +
+    '<button class="btn btn-gold" type="submit" id="cat-create-btn">שמור</button></form>';
+  openBottomSheet('קטגוריה חדשה', body);
+}
+function submitCategoryCreateForm(e) {
+  e.preventDefault();
+  var btn = document.getElementById('cat-create-btn');
+  if (btn.disabled) return; btn.disabled = true; btn.textContent = 'שומר...';
+  callServer('saveCategory', { name: e.target.name.value }).then(function () {
+    showToast('נשמר בהצלחה'); closeBottomSheet(); renderCategoriesScreen();
+  }).catch(function (err) { showToast(err, true); btn.disabled = false; btn.textContent = 'שמור'; });
+}
+
+function openCategoryEditSheet(id, name) {
+  var body = '<form onsubmit="submitCategoryEditForm(event, \'' + id + '\')">' +
+    '<div class="form-group"><label class="form-label">שם הקטגוריה<span class="required">*</span></label>' +
+      '<input class="form-input" name="name" required value="' + escapeHtml(name) + '"></div>' +
+    '<button class="btn btn-gold" type="submit" id="cat-edit-btn">שמור שינויים</button>' +
+    '<button type="button" class="btn btn-danger-ghost" style="margin-top:10px;" onclick="confirmArchiveCategory(\'' + id + '\')">ארכב קטגוריה</button>' +
+    '</form>';
+  openBottomSheet('עריכת קטגוריה', body);
+}
+function submitCategoryEditForm(e, id) {
+  e.preventDefault();
+  var btn = document.getElementById('cat-edit-btn');
+  if (btn.disabled) return; btn.disabled = true; btn.textContent = 'שומר...';
+  callServer('saveCategory', { category_id: id, name: e.target.name.value }).then(function () {
+    showToast('נשמר בהצלחה'); closeBottomSheet(); renderCategoriesScreen();
+  }).catch(function (err) { showToast(err, true); btn.disabled = false; btn.textContent = 'שמור שינויים'; });
+}
+function confirmArchiveCategory(id) {
+  openConfirmDialog('לארכב את הקטגוריה?', 'קטגוריה שכבר נעשה בה שימוש לא נמחקת — רק מוסתרת.', function () {
+    callServer('archiveCategory', id).then(function () {
+      showToast('נשמר בהצלחה'); closeBottomSheet(); renderCategoriesScreen();
+    }).catch(function (err) { showToast(err, true); });
+  });
+}
+
+/* ============================================================
+   VENDORS SCREEN
+   ============================================================ */
+function renderVendorsScreen() {
+  document.getElementById('screen-title').textContent = 'ספקים';
+  renderLoading();
+  refreshVendors().then(function (vendors) {
+    var html = '';
+    if (vendors.length === 0) {
+      html += emptyStateHtml('🧰', 'אין עדיין ספקים', null, '');
+    } else {
+      html += '<div class="card" style="padding:4px 16px;">';
+      vendors.forEach(function (v) {
+        html += '<div class="settings-row" onclick="openVendorEditSheet(' + JSON.stringify(v).replace(/"/g, '&quot;') + ')" style="cursor:pointer;">' +
+          '<div><div class="settings-row-label">' + escapeHtml(v.name) + '</div>' +
+          (v.phone ? '<div class="form-hint">' + escapeHtml(v.phone) + '</div>' : '') + '</div>' +
+          '<div class="settings-row-arrow">' + formatCurrency(v.total_amount) + '</div></div>';
+      });
+      html += '</div>';
+    }
+    html += '<button class="btn btn-secondary" style="margin-top:16px;" onclick="openVendorEditSheet(null)">+ הוסף ספק</button>';
+    root.innerHTML = '<div class="screen">' + html + '</div>';
+  }).catch(function (err) { renderError(err, renderVendorsScreen); });
+}
+
+function openVendorEditSheet(vendor) {
+  var body = '<form onsubmit="submitVendorForm(event' + (vendor ? ", '" + vendor.vendor_id + "'" : ', null') + ')">' +
+    '<div class="form-group"><label class="form-label">שם הספק<span class="required">*</span></label>' +
+      '<input class="form-input" name="name" required value="' + escapeHtml(vendor ? vendor.name : '') + '"></div>' +
+    '<div class="form-group"><label class="form-label">טלפון</label>' +
+      '<input class="form-input" name="phone" type="tel" value="' + escapeHtml(vendor ? vendor.phone : '') + '"></div>' +
+    '<div class="form-group"><label class="form-label">פרטי קשר נוספים</label>' +
+      '<input class="form-input" name="contact_details" value="' + escapeHtml(vendor ? vendor.contact_details : '') + '"></div>' +
+    '<div class="form-group"><label class="form-label">הערות</label>' +
+      '<textarea class="form-textarea" name="notes">' + escapeHtml(vendor ? vendor.notes : '') + '</textarea></div>' +
+    '<button class="btn btn-gold" type="submit" id="vendor-save-btn">שמור</button>' +
+    (vendor ? '<button type="button" class="btn btn-danger-ghost" style="margin-top:10px;" onclick="confirmArchiveVendor(\'' + vendor.vendor_id + '\')">ארכב ספק</button>' : '') +
+    '</form>';
+  openBottomSheet(vendor ? 'עריכת ספק' : 'ספק חדש', body);
+}
+function submitVendorForm(e, vendorId) {
+  e.preventDefault();
+  var btn = document.getElementById('vendor-save-btn');
+  if (btn.disabled) return; btn.disabled = true; btn.textContent = 'שומר...';
+  var form = e.target;
+  var payload = { name: form.name.value, phone: form.phone.value, contact_details: form.contact_details.value, notes: form.notes.value };
+  if (vendorId) payload.vendor_id = vendorId;
+  callServer('saveVendor', payload).then(function () {
+    showToast('נשמר בהצלחה'); closeBottomSheet(); renderVendorsScreen();
+  }).catch(function (err) { showToast(err, true); btn.disabled = false; btn.textContent = 'שמור'; });
+}
+function confirmArchiveVendor(id) {
+  openConfirmDialog('לארכב את הספק?', 'ההיסטוריה של הספק תישמר.', function () {
+    callServer('archiveVendor', id).then(function () {
+      showToast('נשמר בהצלחה'); closeBottomSheet(); renderVendorsScreen();
+    }).catch(function (err) { showToast(err, true); });
+  });
+}
+
+/* ============================================================
+   ARTISTS SCREEN
+   ============================================================ */
+function renderArtistsScreen() {
+  document.getElementById('screen-title').textContent = 'אמנים';
+  renderLoading();
+  refreshArtists().then(function (artists) {
+    var html = '';
+    if (artists.length === 0) {
+      html += emptyStateHtml('🎤', 'אין עדיין אמנים', null, '');
+    } else {
+      html += '<div class="card" style="padding:4px 16px;">';
+      artists.forEach(function (a) {
+        html += '<div class="settings-row" onclick="openArtistEditSheet(' + JSON.stringify(a).replace(/"/g, '&quot;') + ')" style="cursor:pointer;">' +
+          '<div><div class="settings-row-label">' + escapeHtml(a.name) + '</div>' +
+          (a.phone ? '<div class="form-hint">' + escapeHtml(a.phone) + '</div>' : '') + '</div>' +
+          '<div class="settings-row-arrow">' + formatCurrency(a.total_amount) + '</div></div>';
+      });
+      html += '</div>';
+    }
+    html += '<button class="btn btn-secondary" style="margin-top:16px;" onclick="openArtistEditSheet(null)">+ הוסף אמן</button>';
+    root.innerHTML = '<div class="screen">' + html + '</div>';
+  }).catch(function (err) { renderError(err, renderArtistsScreen); });
+}
+
+function openArtistEditSheet(artist) {
+  var body = '<form onsubmit="submitArtistForm(event' + (artist ? ", '" + artist.artist_id + "'" : ', null') + ')">' +
+    '<div class="form-group"><label class="form-label">שם האמן<span class="required">*</span></label>' +
+      '<input class="form-input" name="name" required value="' + escapeHtml(artist ? artist.name : '') + '"></div>' +
+    '<div class="form-group"><label class="form-label">טלפון</label>' +
+      '<input class="form-input" name="phone" type="tel" value="' + escapeHtml(artist ? artist.phone : '') + '"></div>' +
+    '<div class="form-group"><label class="form-label">פרטי קשר נוספים</label>' +
+      '<input class="form-input" name="contact_details" value="' + escapeHtml(artist ? artist.contact_details : '') + '"></div>' +
+    '<div class="form-group"><label class="form-label">הערות</label>' +
+      '<textarea class="form-textarea" name="notes">' + escapeHtml(artist ? artist.notes : '') + '</textarea></div>' +
+    '<div class="form-group"><label class="form-label">הערות מערכת (קבועות)</label>' +
+      '<textarea class="form-textarea" name="system_notes" placeholder="העדפות, ניסיון קודם, דברים לזכור...">' + escapeHtml(artist ? artist.system_notes : '') + '</textarea>' +
+      '<div class="form-hint">מוצג באירועים עתידיים — לא קשור להוצאה ספציפית.</div></div>' +
+    '<button class="btn btn-gold" type="submit" id="artist-save-btn">שמור</button>' +
+    (artist ? '<button type="button" class="btn btn-danger-ghost" style="margin-top:10px;" onclick="confirmArchiveArtist(\'' + artist.artist_id + '\')">ארכב אמן</button>' : '') +
+    '</form>';
+  openBottomSheet(artist ? 'עריכת אמן' : 'אמן חדש', body);
+}
+function submitArtistForm(e, artistId) {
+  e.preventDefault();
+  var btn = document.getElementById('artist-save-btn');
+  if (btn.disabled) return; btn.disabled = true; btn.textContent = 'שומר...';
+  var form = e.target;
+  var payload = { name: form.name.value, phone: form.phone.value, contact_details: form.contact_details.value, notes: form.notes.value, system_notes: form.system_notes.value };
+  if (artistId) payload.artist_id = artistId;
+  callServer('saveArtist', payload).then(function () {
+    showToast('נשמר בהצלחה'); closeBottomSheet(); renderArtistsScreen();
+  }).catch(function (err) { showToast(err, true); btn.disabled = false; btn.textContent = 'שמור'; });
+}
+function confirmArchiveArtist(id) {
+  openConfirmDialog('לארכב את האמן?', 'ההיסטוריה של האמן תישמר.', function () {
+    callServer('archiveArtist', id).then(function () {
+      showToast('נשמר בהצלחה'); closeBottomSheet(); renderArtistsScreen();
+    }).catch(function (err) { showToast(err, true); });
+  });
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function renderSettings() {
+  document.getElementById('screen-title').textContent = 'הגדרות';
+  var html = '<div class="card" style="padding:4px 16px;">' +
+    '<div class="settings-row" onclick="navigate(\'categories\')"><span class="settings-row-label">ניהול קטגוריות</span><span class="settings-row-arrow">‹</span></div>' +
+    '<div class="settings-row" onclick="navigate(\'vendors\')"><span class="settings-row-label">ניהול ספקים</span><span class="settings-row-arrow">‹</span></div>' +
+    '<div class="settings-row" onclick="navigate(\'artists\')"><span class="settings-row-label">ניהול אמנים</span><span class="settings-row-arrow">‹</span></div>' +
+    '<div class="settings-row" onclick="handleComingSoon(\'ניהול אמצעי תשלום\')"><span class="settings-row-label">אמצעי תשלום</span><span class="settings-row-arrow">‹</span></div>' +
+    '<div class="settings-row" onclick="openGoogleSheet()"><span class="settings-row-label">פתח את קובץ Google Sheets</span><span class="settings-row-arrow">‹</span></div>' +
+  '</div>' +
+  '<div class="form-hint" style="text-align:center; margin-top:20px;">DORON\'S RAVE · גרסת מערכת ראשונית</div>';
+  root.innerHTML = '<div class="screen">' + html + '</div>';
+}
+
+function openGoogleSheet() {
+  callServer('getSpreadsheetUrl').then(function (data) {
+    window.open(data.url, '_blank');
+  }).catch(function (err) { showToast(err, true); });
+}
+
+/* ============================================================
+   Bottom sheet / action sheet / confirm dialog (shared)
+   ============================================================ */
+function openBottomSheet(title, bodyHtml) {
+  closeBottomSheet();
+  var overlay = document.createElement('div');
+  overlay.className = 'sheet-overlay';
+  overlay.id = 'active-sheet-overlay';
+  overlay.onclick = function (e) { if (e.target === overlay) closeBottomSheet(); };
+  overlay.innerHTML = '' +
+    '<div class="sheet-panel">' +
+      '<div class="sheet-handle"></div>' +
+      '<div class="sheet-header"><div class="sheet-title">' + escapeHtml(title) + '</div>' +
+        '<button class="sheet-close" onclick="closeBottomSheet()">✕</button></div>' +
+      '<div>' + bodyHtml + '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+}
+function closeBottomSheet() {
+  var el = document.getElementById('active-sheet-overlay');
+  if (el) el.remove();
+}
+
+function openActionSheet(title, options) {
+  var body = options.map(function (opt, i) {
+    return '<button class="btn ' + (opt.danger ? 'btn-danger-ghost' : 'btn-secondary') + '" style="margin-bottom:10px;" onclick="handleActionSheetChoice(' + i + ')">' + escapeHtml(opt.label) + '</button>';
+  }).join('');
+  window.__actionSheetOptions = options;
+  openBottomSheet(title, body);
+}
+function handleActionSheetChoice(i) {
+  var opt = window.__actionSheetOptions[i];
+  closeBottomSheet();
+  if (opt && opt.action) opt.action();
+}
+
+function openConfirmDialog(title, message, onConfirm) {
+  var body = '<div class="form-hint" style="font-size:14px; margin-bottom:18px;">' + escapeHtml(message) + '</div>' +
+    '<div class="btn-block-row">' +
+      '<button class="btn btn-secondary" onclick="closeBottomSheet()">ביטול</button>' +
+      '<button class="btn btn-danger-ghost" id="confirm-dialog-btn">אישור</button>' +
+    '</div>';
+  openBottomSheet(title, body);
+  document.getElementById('confirm-dialog-btn').onclick = onConfirm;
+}
+
+/* ============================================================
+   Init
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function () {
+  navigate('home');
+});
+</script>

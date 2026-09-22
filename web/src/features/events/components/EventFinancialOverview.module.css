@@ -1,0 +1,16 @@
+.rows { margin: 0; display: flex; flex-direction: column; }
+.row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  min-block-size: var(--touch-target);
+  border-block-end: var(--border-default);
+}
+.row:last-child { border-block-end: 0; }
+.row dt { color: var(--color-text-secondary); font-size: var(--font-size-body); }
+.row dd { margin: 0; font-weight: var(--font-weight-semibold); font-size: var(--font-size-body-lg); text-align: end; }
+.muted { color: var(--color-text-secondary); font-weight: var(--font-weight-medium); font-size: var(--font-size-body); }
+.progress { display: flex; flex-direction: column; gap: var(--space-1); margin-block-start: var(--space-1-5); }
+.basis { display: block; margin-block-start: var(--space-1-5); }
+.forecastHead { display: flex; align-items: center; gap: var(--space-1); margin-block-end: var(--space-1); }
+.forecastIcon { color: var(--color-brand-primary); display: inline-flex; }
+.forecastValue, .forecastLoss { font-size: var(--font-size-metric); font-weight: var(--font-weight-bold); line-height: var(--line-height-h2); }
+.forecastLoss { color: var(--color-danger); }

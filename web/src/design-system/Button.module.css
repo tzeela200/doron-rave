@@ -1,0 +1,81 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-block-size: var(--control-height);
+  padding-inline: 20px; /* Book 02 §8.1 default horizontal padding */
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background-color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out);
+  user-select: none;
+  max-inline-size: 100%;
+}
+.button > span { overflow: hidden; text-overflow: ellipsis; }
+.compact { min-block-size: var(--control-height-compact); padding-inline: var(--space-2); font-size: var(--font-size-body); }
+.fullWidth { inline-size: 100%; }
+
+/* Primary: brand.700 background — white on #D97706 fails AA for 15–16px text (Book 02 §12.2) */
+.primary { background: var(--color-brand-hover); color: var(--color-surface-primary); }
+.secondary { background: var(--color-surface-primary); color: var(--color-text-primary); border-color: var(--color-border-strong); }
+.ghost { background: transparent; color: var(--color-text-strong); }
+.danger { background: var(--color-surface-primary); color: var(--color-danger); border-color: var(--color-danger); }
+
+@media (hover: hover) {
+  .primary:hover:not(:disabled) { background: var(--color-brand-pressed); }
+  .secondary:hover:not(:disabled), .ghost:hover:not(:disabled) { background: var(--color-surface-secondary); }
+  .danger:hover:not(:disabled) { background: var(--color-danger-soft); }
+}
+.primary:active:not(:disabled) { background: var(--color-brand-pressed); }
+.secondary:active:not(:disabled), .ghost:active:not(:disabled) { background: var(--color-surface-secondary); }
+
+.button:disabled { cursor: not-allowed; }
+.primary:disabled { background: var(--color-border-default); color: var(--color-text-secondary); }
+.secondary:disabled, .ghost:disabled, .danger:disabled { opacity: .55; }
+.button[aria-busy='true'] { cursor: progress; }
+
+.spinner { animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--touch-target);
+  block-size: var(--touch-target);
+  border-radius: var(--radius-md);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-strong);
+  flex: none;
+}
+.iconSoft { background: var(--color-surface-secondary); }
+@media (hover: hover) { .iconButton:hover:not(:disabled) { background: var(--color-surface-secondary); } }
+.iconButton:disabled { opacity: .55; cursor: not-allowed; }
+
+.fab {
+  position: fixed;
+  inset-inline-end: var(--page-gutter);
+  inset-block-end: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
+  z-index: var(--z-sticky);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-block-size: 56px; /* Book 02 touch ≥48; FAB is the one elevated control */
+  padding-inline: 20px;
+  border-radius: var(--radius-pill);
+  border: 0;
+  background: var(--color-brand-hover);
+  color: var(--color-surface-primary);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-md);
+}
+@media (hover: hover) { .fab:hover { background: var(--color-brand-pressed); } }
+@media (min-width: 1024px) {
+  .fab { inset-block-end: var(--space-4); }
+}

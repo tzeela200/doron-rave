@@ -1,0 +1,45 @@
+.segmented {
+  display: flex;
+  gap: var(--space-0-5);
+  padding: var(--space-0-5);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-secondary);
+  inline-size: 100%;
+}
+.segment {
+  flex: 1;
+  min-block-size: var(--control-height-compact);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  padding-inline: var(--space-1);
+  white-space: nowrap;
+}
+.segmentActive { background: var(--color-surface-primary); color: var(--color-text-primary); font-weight: var(--font-weight-semibold); box-shadow: var(--shadow-sm); }
+
+.formSection { border: 0; margin: 0; padding: 0; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--space-1-5); }
+.formSectionTitle { padding: 0; font-size: var(--font-size-title); font-weight: var(--font-weight-semibold); margin-block-end: var(--space-0-5); }
+.formSectionDescription { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.formSectionBody { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.sticky {
+  position: sticky;
+  inset-block-end: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-sticky);
+  display: flex;
+  gap: var(--space-1);
+  padding-block: var(--space-1-5);
+  background: var(--color-bg-app);
+  border-block-start: var(--border-default);
+}
+.sticky > * { flex: 1; }
+@media (min-width: 1024px) { .sticky { inset-block-end: 0; } }
+
+.filterBar { display: flex; gap: var(--space-1); align-items: center; }
+
+.dataList { display: flex; flex-direction: column; border: var(--border-default); border-radius: var(--radius-lg); background: var(--color-surface-primary); overflow: hidden; }
+.dataRow { padding: var(--space-1-5) var(--card-padding); border-block-end: var(--border-default); min-inline-size: 0; }
+.dataRow:last-child { border-block-end: 0; }

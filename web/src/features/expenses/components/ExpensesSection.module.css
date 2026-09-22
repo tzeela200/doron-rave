@@ -1,0 +1,20 @@
+.list { display: flex; flex-direction: column; }
+.item { border-block-end: var(--border-default); }
+.item:last-child { border-block-end: 0; }
+.link {
+  display: flex; align-items: center; gap: var(--space-1-5);
+  padding: var(--space-1-5) var(--card-padding);
+  min-block-size: var(--touch-target);
+  color: inherit;
+}
+@media (hover: hover) { .link:hover { background: var(--color-surface-subtle); } }
+.link:active { background: var(--color-surface-secondary); }
+.main { flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.crumb { font-size: var(--font-size-caption); color: var(--color-text-secondary); }
+.title { font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+.sub { font-size: var(--font-size-label); color: var(--color-text-secondary); }
+.badges { display: flex; flex-wrap: wrap; gap: var(--space-0-5); margin-block-start: var(--space-0-5); }
+.money { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; text-align: end; }
+.agreed { font-weight: var(--font-weight-semibold); }
+.small { font-size: var(--font-size-caption); color: var(--color-text-secondary); white-space: nowrap; }
+.chevron { color: var(--color-text-muted); flex: none; }
