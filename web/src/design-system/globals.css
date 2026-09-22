@@ -39,11 +39,19 @@ button { cursor: pointer; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
 
-/* Visible focus everywhere (Book 02 §12.1) */
+/* Visible focus everywhere (Book 02 §12.1): a crisp brand ring with a soft halo — designed, not default */
 :focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-brand-primary) 16%, transparent);
 }
+
+/* Branded text selection */
+::selection { background: color-mix(in srgb, var(--color-brand-primary) 26%, transparent); color: var(--color-text-strong); }
+
+/* Headlines break in balanced lines, paragraphs avoid a lone last word */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
 :focus:not(:focus-visible) { outline: none; }
 
 .visually-hidden {
@@ -63,6 +71,7 @@ img, svg { display: block; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
+    animation-delay: 0ms !important;
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;

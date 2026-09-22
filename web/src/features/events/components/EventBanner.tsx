@@ -10,7 +10,7 @@ import styles from './EventBanner.module.css';
 /** `hero` = the taller focal banner (Top Design Review §1, 128px) with stronger contrast. */
 export function EventBanner({ children, bleed = true, hero = false, className }: { children?: ReactNode; bleed?: boolean; hero?: boolean; className?: string }) {
   return (
-    <div className={cx(styles.banner, bleed && styles.bleed, hero && styles.hero, className)} style={{ backgroundImage: `url(${bannerImage})` }}>
+    <div className={cx(styles.banner, bleed && styles.bleed, hero && styles.hero, className)} style={{ ['--banner-image' as string]: `url(${bannerImage})` }}>
       {children}
     </div>
   );

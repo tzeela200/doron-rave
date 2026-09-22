@@ -870,7 +870,7 @@ Push כולל `vercel.json`.
 - אימות: tsc · ESLint · 61 בדיקות · build · 9 מסכים × 7 רוחבים (320–1440) בלי גלישה.
 
 
-## 2026-09-22g — Visual Rhythm + Top Design Review (לא נדחף)
+## 2026-09-22g — Visual Rhythm + Top Design Review (נדחף: 8b2990a, אומת ב-Production)
 
 - טוקנים: שלוש שכבות צל, סקאלת כותרות רחבה, meta/caption, אייקון 22, Tile 44, compact 48 בנייד, ease-out חלק.
 - בית: כרטיס אירוע מוביל 136px, KPI בהיררכיה חזקה, קיצורים עם Accent, Timeline תשלומים, סיכום עם מפרידים, קצב ריווח משתנה, סימן מותג 56px.
@@ -878,3 +878,13 @@ Push כולל `vercel.json`.
 - מסך אירוע: מוכנות → Accordion (פתוח כשמוגדר). **באג שתוקן:** Sheet שנפתח מכפתור של Accordion סגור היה בתוך גוף מוסתר —
   Sheet/Dialog עברו ל-portal.
 - אימות: tsc · ESLint · 61 בדיקות · build · 9 מסכים × 7 רוחבים בלי גלישה (נמצאו ותוקנו: ערך KPI שלילי ב-320, כפתורי הערות ב-320) · אין פקד נמוך מ-44 בנייד.
+
+
+## 2026-09-22h — Craft pass (/top-design) (נדחף)
+
+- תנועה: expo-out `cubic-bezier(.16,1,.3,1)` במקום ease; shimmer בעקומה מותאמת.
+- כניסת מסך: אזורי העמוד עולים לפי סדר חשיבות (70ms בין אזור לאזור, transform+opacity, לא חוסם; reduced-motion מבטל גם את ההשהיה).
+- פרטים: טבעת פוקוס עם הילה רכה, צבע סימון טקסט ממותג, `text-wrap: balance/pretty`.
+- רגע חתימה: תמונת האירוע "נשענת פנימה" (scale 1.08, 900ms) כשמרחפים על כרטיס.
+- הוחלט לא לבצע (ראה סיכום לשיחה): גופן תצוגה נוסף, Lenis/scroll hijack, custom cursor, יחס טיפוגרפי 10:1, count-up למספרים כספיים.
+- אימות: tsc · ESLint · 61 בדיקות · build.

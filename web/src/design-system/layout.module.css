@@ -10,6 +10,16 @@
 }
 .narrow { max-inline-size: var(--form-max); }
 
+/* Entrance choreography: a screen's regions rise in reading order (KPI → events → shortcuts →
+   payments → summary), 70ms apart. Transform + opacity only; never blocks input. */
+.page > * { animation: rise var(--motion-enter) var(--ease-out) both; }
+.page > :nth-child(2) { animation-delay: 70ms; }
+.page > :nth-child(3) { animation-delay: 140ms; }
+.page > :nth-child(4) { animation-delay: 210ms; }
+.page > :nth-child(5) { animation-delay: 280ms; }
+.page > :nth-child(n + 6) { animation-delay: 320ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
 .stack { display: flex; flex-direction: column; min-inline-size: 0; }
 .inline { display: flex; flex-wrap: wrap; min-inline-size: 0; }
 .nowrap { flex-wrap: nowrap; }

@@ -6,10 +6,23 @@
   block-size: var(--event-banner-height);
   padding: var(--space-1-5);
   background-color: var(--color-text-strong);
+  isolation: isolate;
+  overflow: hidden;
+}
+/* The image lives on its own layer so it can move without moving the content */
+.banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--banner-image);
   background-size: cover;
   background-position: center;
-  isolation: isolate;
+  transform: scale(1.02);
+  transition: transform 900ms var(--ease-out);
 }
+/* Signature moment: reaching for an event, its image slowly leans in */
+@media (hover: hover) { a:hover > .banner::before { transform: scale(1.08); } }
 /* Soft dark gradient, lighter at the top where the badge sits; a hairline of warm light at the
    bottom edge separates image from card body. */
 .banner::after {
