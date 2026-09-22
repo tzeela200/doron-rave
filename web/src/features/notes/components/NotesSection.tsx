@@ -10,10 +10,10 @@ import { DateInput, Field, Textarea } from '@/design-system/form';
 import { Inline, Section } from '@/design-system/layout';
 import { BottomSheet } from '@/design-system/overlay';
 import { ConfirmArchive } from '@/design-system/patterns';
-import type { NoteEntityType, NoteType } from '@/domain/constants';
+import { NOTE_TYPE, type NoteEntityType, type NoteType } from '@/domain/constants';
 import { useNotes } from '@/features/queries';
 import { useSheetCloseGuard } from '@/hooks/useUnsavedChanges';
-import { formatDate, formatTimestampDate } from '@/lib/format';
+import { formatDate, formatTimestampDate, formatNumber } from '@/lib/format';
 import { refresh } from '@/lib/query/refresh';
 import { useAppMutation } from '@/lib/query/useAppMutation';
 import { archiveNote, saveNote, setReminderCompleted, type NoteVM } from '../data/notesRepository';
@@ -127,10 +127,14 @@ export function NotesSection({ entityType, entityId, allowReminders = true }: { 
   const notes = useNotes(entityType, entityId);
   const [adding, setAdding] = useState<NoteType | null>(null);
   const title = allowReminders ? 'הערות ותזכורות' : 'הערות';
+  const openReminders = (notes.data ?? []).filter((n) => n.type === NOTE_TYPE.REMINDER && !n.isCompleted).length;
   return (
     <Section
       id="notes"
       title={title}
+      count={notes.data?.length}
+      icon={StickyNote}
+      meta={openReminders > 0 ? `${formatNumber(openReminders)} תזכורות פתוחות` : undefined}
       action={
         <Inline gap="0-5" wrap={false}>
           <Button variant="secondary" compact icon={Plus} onClick={() => setAdding('note')}>הוסף הערה</Button>

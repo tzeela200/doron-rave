@@ -86,7 +86,7 @@ export function VendorDetailPage() {
                   </Card>
                 )}
         </Section>
-        {!v.isArchived && <Button variant="ghost" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
+        {!v.isArchived && <Button variant="danger" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
       </PageContainer>
       {editing && <VendorSheet vendor={v} onClose={() => setEditing(false)} />}
       <ConfirmArchive

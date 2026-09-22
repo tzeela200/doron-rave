@@ -36,7 +36,7 @@ function wrap(ui: ReactNode, client = new QueryClient({ defaultOptions: { querie
 
 function eventVM(over: Partial<EventSummaryVM>): EventSummaryVM {
   const base = {
-    id: 'e1', name: 'אירוע בדיקה', eventDate: '2026-10-15', location: 'מקום', generalNotes: '', isArchived: false, isUpcoming: true,
+    id: 'e1', name: 'אירוע בדיקה', eventDate: '2026-10-15', startTime: null, endTime: null, location: 'מקום', generalNotes: '', isArchived: false, isUpcoming: true,
     daysUntil: 23, averageTicketPrice: null, expectedTicketCount: null, agreedExpenses: 1000, plannedExpenses: 1000, paidTotal: 0,
     remainingToPay: 1000, incomeTotal: 0, ticketIncome: 0, nonTicketIncome: 0, ticketsSold: 0, balance: -1000, expensesCount: 1,
     artistsCount: 0, tiers: [], ...over,

@@ -14,6 +14,9 @@ export interface EventSummaryVM {
   id: string;
   name: string;
   eventDate: string;
+  /** HH:MM or null (addendum 2026-09-22). End earlier than start = crosses midnight. */
+  startTime: string | null;
+  endTime: string | null;
   location: string;
   generalNotes: string;
   isArchived: boolean;
@@ -37,7 +40,7 @@ export interface EventSummaryVM {
 }
 
 const OVERVIEW_COLUMNS =
-  'id, name, event_date, location, general_notes, is_archived, is_upcoming, days_until, average_ticket_price, expected_ticket_count, agreed_expenses, planned_expenses, paid_total, remaining_to_pay, income_total, ticket_income, non_ticket_income, tickets_sold, balance, expenses_count, artists_count';
+  'id, name, event_date, location, general_notes, is_archived, is_upcoming, days_until, average_ticket_price, expected_ticket_count, agreed_expenses, planned_expenses, paid_total, remaining_to_pay, income_total, ticket_income, non_ticket_income, tickets_sold, balance, expenses_count, artists_count, event_start_time, event_end_time';
 
 function toSummary(r: OverviewRow, tiers: TicketTier[]): EventSummaryVM {
   if (!r.id || !r.name || !r.event_date) throw new AppError('DB', 'overview_shape', MESSAGES.load, 'toSummary');
@@ -46,6 +49,8 @@ function toSummary(r: OverviewRow, tiers: TicketTier[]): EventSummaryVM {
     id: r.id,
     name: r.name,
     eventDate: r.event_date,
+    startTime: r.event_start_time ? r.event_start_time.slice(0, 5) : null,
+    endTime: r.event_end_time ? r.event_end_time.slice(0, 5) : null,
     location: r.location ?? '',
     generalNotes: r.general_notes ?? '',
     isArchived: !!r.is_archived,
@@ -136,6 +141,8 @@ export interface EventInput {
   id?: string;
   name: string;
   eventDate: string;
+  startTime: string | null;
+  endTime: string | null;
   location: string;
   generalNotes: string;
   averageTicketPrice: number | null;
@@ -150,6 +157,8 @@ export async function saveEvent(input: EventInput): Promise<string> {
     id: input.id ?? null,
     name: input.name.trim(),
     event_date: input.eventDate,
+    event_start_time: input.startTime,
+    event_end_time: input.endTime,
     location: input.location.trim(),
     general_notes: input.generalNotes,
     average_ticket_price: input.averageTicketPrice,

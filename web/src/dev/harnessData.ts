@@ -38,7 +38,7 @@ export const categoryTree: CategoryTree = {
 
 function event(id: string, name: string, date: string, days: number, over: Partial<EventSummaryVM>, tiers: TicketTier[] = []): EventSummaryVM {
   const base = {
-    id, name, eventDate: date, location: 'מיקום לדוגמה', generalNotes: '', isArchived: false, isUpcoming: days >= 0, daysUntil: days,
+    id, name, eventDate: date, startTime: null, endTime: null, location: 'מיקום לדוגמה', generalNotes: '', isArchived: false, isUpcoming: days >= 0, daysUntil: days,
     averageTicketPrice: null, expectedTicketCount: null, agreedExpenses: 0, plannedExpenses: 0, paidTotal: 0, remainingToPay: 0,
     incomeTotal: 0, ticketIncome: 0, nonTicketIncome: 0, ticketsSold: 0, balance: 0, expensesCount: 0, artistsCount: 0, tiers,
     ...over,
@@ -53,7 +53,7 @@ function event(id: string, name: string, date: string, days: number, over: Parti
 }
 
 export const events: EventSummaryVM[] = [
-  event(HARNESS_EVENT_ID, 'אירוע דוגמה — Desert', '2026-10-15', 23, {
+  event(HARNESS_EVENT_ID, 'אירוע דוגמה — Desert', '2026-10-15', 23, { startTime: '22:00', endTime: '07:00',
     agreedExpenses: 9800, plannedExpenses: 10300, paidTotal: 3400, remainingToPay: 6400, incomeTotal: 4299.7,
     ticketIncome: 4000, nonTicketIncome: 299.7, ticketsSold: 40, balance: -5500.3, expensesCount: 4, artistsCount: 2,
     averageTicketPrice: 100, expectedTicketCount: 180,

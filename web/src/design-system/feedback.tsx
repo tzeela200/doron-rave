@@ -59,7 +59,7 @@ interface EmptyStateProps {
 export function EmptyState({ title, description, action, icon, compact = false }: EmptyStateProps) {
   return (
     <div className={cx(styles.empty, compact && styles.emptyCompact)}>
-      {icon && !compact && <span className={styles.emptyIcon}><Icon icon={icon} size="xl" /></span>}
+      {icon && !compact && <span className={styles.emptyIcon}><Icon icon={icon} size="sm" /></span>}
       <p className={styles.emptyTitle}>{title}</p>
       {description && <p className={styles.emptyText}>{description}</p>}
       {action}
@@ -70,7 +70,7 @@ export function EmptyState({ title, description, action, icon, compact = false }
 export function NoResultsState({ onClear, clearLabel = 'נקה סינון' }: { onClear: () => void; clearLabel?: string }) {
   return (
     <div className={styles.empty}>
-      <span className={styles.emptyIcon}><Icon icon={SearchX} size="xl" /></span>
+      <span className={styles.emptyIcon}><Icon icon={SearchX} size="sm" /></span>
       <p className={styles.emptyTitle}>לא נמצאו תוצאות</p>
       <Button variant="secondary" onClick={onClear}>{clearLabel}</Button>
     </div>

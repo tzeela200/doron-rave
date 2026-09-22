@@ -42,25 +42,36 @@ export function InteractiveCard({ to, children, className, ariaLabel, state }: I
 
 export type Tone = 'neutral' | 'success' | 'warning' | 'error' | 'accent';
 
+/** Semantic colour of an icon tile (Book 02 V3 §5): colour marks meaning, never fills a card. */
+export type IconTone = 'brand' | 'teal' | 'success' | 'warning' | 'danger' | 'neutral';
+
+/** Icon Tile (V3 §6): 40px, soft background, icon in the semantic colour. KPI, shortcuts, headers. */
+export function IconTile({ icon, tone = 'brand', className }: { icon: LucideIcon; tone?: IconTone; className?: string }) {
+  return <span className={cx(styles.tile, styles[`tile-${tone}`], className)}><Icon icon={icon} size="sm" /></span>;
+}
+
 interface KpiCardProps {
   label: string;
   /** Formatted value, or null → shows `empty` (never 0) (Book 06 §11). */
   value: ReactNode | null;
   empty?: string;
+  /** Small line under the label: an existing supporting fact, never an invented delta. */
   meta?: ReactNode;
   icon?: LucideIcon;
+  tone?: IconTone;
   negative?: boolean;
 }
 
-export function KpiCard({ label, value, empty, meta, icon, negative }: KpiCardProps) {
+/** V3 §6: Icon Tile → Label → Value → secondary line. The card stays white. */
+export function KpiCard({ label, value, empty, meta, icon, tone = 'brand', negative }: KpiCardProps) {
   return (
     <div className={cx(styles.card, styles.surface, styles.kpi)}>
-      <div className={styles.kpiHead}>
-        <Label as="p">{label}</Label>
-        {icon && <span className={styles.kpiIcon}><Icon icon={icon} size="sm" /></span>}
+      {icon && <IconTile icon={icon} tone={tone} />}
+      <div className={styles.kpiBody}>
+        <Label as="p" className={styles.kpiLabel}>{label}</Label>
+        <Metric empty={empty} negative={negative} className={styles.kpiValue}>{value}</Metric>
+        {meta && <div className={styles.kpiMeta}>{meta}</div>}
       </div>
-      <Metric empty={empty} negative={negative}>{value}</Metric>
-      {meta && <div className={styles.kpiMeta}>{meta}</div>}
     </div>
   );
 }
@@ -113,7 +124,7 @@ export function Accordion({ title, meta, children, defaultOpen = false, icon }: 
   return (
     <div className={cx(styles.card, styles.surface, styles.accordion)}>
       <button type="button" className={styles.accordionHeader} aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen((o) => !o)}>
-        {icon && <span className={styles.kpiIcon}><Icon icon={icon} size="sm" /></span>}
+        {icon && <IconTile icon={icon} tone="neutral" />}
         <span className={styles.accordionTitle}>{title}</span>
         {meta && <span className={styles.accordionMeta}>{meta}</span>}
         <Icon icon={ChevronDown} size="sm" className={cx(styles.chevron, open && styles.chevronOpen)} />

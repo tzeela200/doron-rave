@@ -177,11 +177,13 @@ export type Database = {
           created_at: string
           event_date: string
           expected_ticket_count: number | null
+          event_end_time: string | null
           general_notes: string
           id: string
           is_archived: boolean
           location: string
           name: string
+          event_start_time: string | null
           updated_at: string
         }
         Insert: {
@@ -189,11 +191,13 @@ export type Database = {
           created_at?: string
           event_date: string
           expected_ticket_count?: number | null
+          event_end_time?: string | null
           general_notes?: string
           id?: string
           is_archived?: boolean
           location?: string
           name: string
+          event_start_time?: string | null
           updated_at?: string
         }
         Update: {
@@ -201,11 +205,13 @@ export type Database = {
           created_at?: string
           event_date?: string
           expected_ticket_count?: number | null
+          event_end_time?: string | null
           general_notes?: string
           id?: string
           is_archived?: boolean
           location?: string
           name?: string
+          event_start_time?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -664,6 +670,7 @@ export type Database = {
           days_until: number | null
           event_date: string | null
           expected_ticket_count: number | null
+          event_end_time: string | null
           expenses_count: number | null
           general_notes: string | null
           id: string | null
@@ -672,6 +679,7 @@ export type Database = {
           is_upcoming: boolean | null
           location: string | null
           name: string | null
+          event_start_time: string | null
           non_ticket_income: number | null
           paid_total: number | null
           planned_expenses: number | null
@@ -722,6 +730,7 @@ export type Database = {
           days_until: number | null
           event_date: string | null
           expected_ticket_count: number | null
+          event_end_time: string | null
           expenses_count: number | null
           general_notes: string | null
           id: string | null
@@ -730,6 +739,7 @@ export type Database = {
           is_upcoming: boolean | null
           location: string | null
           name: string | null
+          event_start_time: string | null
           non_ticket_income: number | null
           paid_total: number | null
           planned_expenses: number | null

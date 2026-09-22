@@ -25,7 +25,7 @@ export function HomePage() {
 
   return (
     <>
-      <AppHeader title="בית" subtitle={<span className="num">{formatWeekday(today)} · {formatDate(today)}</span>} />
+      <AppHeader brand title="בית" subtitle={<span className="num">{formatWeekday(today)} · {formatDate(today)}</span>} />
       <PageContainer>
         <section aria-label="מדדים מרכזיים">
           {summary.isLoading ? (
@@ -34,10 +34,10 @@ export function HomePage() {
             <ErrorState onRetry={() => void summary.refetch()} retrying={summary.isFetching} />
           ) : summary.data && (
             <div className={styles.kpis}>
-              <KpiCard label="אירועים פעילים" icon={CalendarDays} value={formatNumber(summary.data.activeEventsCount)} />
-              <KpiCard label="נותר לשלם" icon={CircleDollarSign} value={formatMoney(summary.data.remainingToPay)}
+              <KpiCard label="אירועים פעילים" icon={CalendarDays} tone="teal" value={formatNumber(summary.data.activeEventsCount)} />
+              <KpiCard label="נותר לשלם" icon={CircleDollarSign} tone="brand" value={formatMoney(summary.data.remainingToPay)}
                 meta={<>שולם <Money value={summary.data.paidTotal} /> מתוך <Money value={summary.data.agreedExpenses} /></>} />
-              <KpiCard label="הכנסות" icon={Banknote} value={formatMoney(summary.data.incomeTotal)}
+              <KpiCard label="הכנסות" icon={Banknote} tone="teal" value={formatMoney(summary.data.incomeTotal)}
                 meta={summary.data.ticketsSold > 0 ? <>כרטיסים שנמכרו: <span className="num">{formatNumber(summary.data.ticketsSold)}</span></> : undefined} />
             </div>
           )}
@@ -57,10 +57,10 @@ export function HomePage() {
 
         <Section title="גישה מהירה">
           <div className={styles.quick}>
-            <QuickAction to="/artists" label="אמנים וליין־אפ" icon={Mic2} />
-            <QuickAction to="/categories" label="קטגוריות" icon={FolderTree} />
-            <QuickAction to="/vendors" label="ספקים" icon={Truck} />
-            <QuickAction to="/events" label="אירועים" icon={CalendarDays} />
+            <QuickAction to="/artists" label="אמנים וליין־אפ" icon={Mic2} tone="teal" />
+            <QuickAction to="/categories" label="קטגוריות" icon={FolderTree} tone="success" />
+            <QuickAction to="/vendors" label="ספקים" icon={Truck} tone="neutral" />
+            <QuickAction to="/events" label="אירועים" icon={CalendarDays} tone="brand" />
           </div>
         </Section>
 

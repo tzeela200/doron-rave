@@ -17,10 +17,10 @@ export function ManagementPage() {
       <PageContainer>
         <Section title="ישויות">
           <div className={styles.grid}>
-            <QuickAction to="/artists" label="אמנים" icon={Mic2} />
-            <QuickAction to="/categories" label="קטגוריות" icon={FolderTree} />
-            <QuickAction to="/vendors" label="ספקים" icon={Truck} />
-            <QuickAction to="/events" label="אירועים" icon={CalendarDays} />
+            <QuickAction to="/artists" label="אמנים" icon={Mic2} tone="teal" />
+            <QuickAction to="/categories" label="קטגוריות" icon={FolderTree} tone="success" />
+            <QuickAction to="/vendors" label="ספקים" icon={Truck} tone="neutral" />
+            <QuickAction to="/events" label="אירועים" icon={CalendarDays} tone="brand" />
           </div>
         </Section>
         <Section title="כספים ודוחות">

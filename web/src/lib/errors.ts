@@ -37,6 +37,7 @@ const DOMAIN_MESSAGES: Record<string, string> = {
   amount_invalid: 'יש להזין סכום תקין',
   payment_amount_invalid: 'יש להזין סכום תקין',
   performance_times_equal: 'שעת ההתחלה ושעת הסיום לא יכולות להיות זהות',
+  event_hours_equal: 'שעת ההתחלה ושעת הסיום של האירוע לא יכולות להיות זהות',
   performance_end_missing: 'יש להזין גם שעת סיום',
   performance_start_missing: 'יש להזין גם שעת התחלה',
   performance_only_artists: 'שעות הופעה נשמרות רק להוצאת אמן',

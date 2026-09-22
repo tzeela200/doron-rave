@@ -41,3 +41,41 @@
 
 .divider { border: 0; border-block-start: var(--border-default); margin: 0; inline-size: 100%; }
 .dividerInset { margin-inline: var(--card-padding); inline-size: auto; }
+
+/* Collapsible section (V3 §15): white header card, ≥60px, icon + title (N) + summary; the
+   action sits beside the toggle so it works while closed and wraps below it on narrow screens. */
+.collapseCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-1-5);
+  padding: var(--space-1) var(--card-padding);
+  border: var(--border-default);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-primary);
+  transition: box-shadow var(--motion-base) var(--ease-out);
+}
+@media (hover: hover) { .collapseCard:hover { box-shadow: var(--shadow); } }
+.collapseCardOpen { box-shadow: var(--shadow); }
+.collapseHeading { margin: 0; font: inherit; flex: 1 1 220px; min-inline-size: 0; }
+.collapseHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  inline-size: 100%;
+  min-block-size: var(--accordion-header-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  text-align: start;
+}
+.collapseText { flex: 1; display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; }
+.collapseTitle { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); color: var(--color-text-strong); }
+.collapseMeta { font-size: var(--font-size-label); line-height: var(--line-height-label); color: var(--color-text-secondary); }
+.chevron { flex: none; color: var(--color-text-secondary); transition: transform var(--motion-accordion) var(--ease-out); }
+.chevronOpen { transform: rotate(180deg); }
+.collapseAction { flex: none; margin-inline-start: auto; }
+.collapseBody { display: flex; flex-direction: column; gap: var(--space-1-5); min-inline-size: 0; animation: collapse-in var(--motion-accordion) var(--ease-out); }
+.collapseBody[hidden] { display: none; }
+@keyframes collapse-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

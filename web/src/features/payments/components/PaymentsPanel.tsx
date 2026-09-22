@@ -147,7 +147,7 @@ function PaymentSheet({ eventId, expenseId, payment, suggestedAmount, onClose }:
         <form onSubmit={onSubmit} noValidate className={styles.form}>
           {save.error && <InlineMessage tone="error" title={save.error.userMessage} />}
           <PaymentFields reg={(k) => form.register(k)} errors={form.formState.errors} status={status} />
-          {payment && <Button variant="ghost" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
+          {payment && <Button variant="danger" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
           <button type="submit" hidden />
         </form>
       </BottomSheet>

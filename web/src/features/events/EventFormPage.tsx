@@ -7,7 +7,7 @@ import { AppHeader } from '@/components/navigation/navigation';
 import { Button, IconButton } from '@/design-system/Button';
 import { Accordion, Card } from '@/design-system/Card';
 import { ErrorState, InlineMessage, LoadingBlock } from '@/design-system/feedback';
-import { DateInput, Field, Input, MoneyInput, NumberInput, Textarea } from '@/design-system/form';
+import { DateInput, Field, Input, MoneyInput, NumberInput, Textarea, TimeInput } from '@/design-system/form';
 import { PageContainer, Stack } from '@/design-system/layout';
 import { ConfirmArchive, FormSection, StickyFormActions } from '@/design-system/patterns';
 import { Caption } from '@/design-system/Typography';
@@ -85,6 +85,8 @@ function EventForm({ eventId, initial }: { eventId?: string; initial: EventFormV
   });
 
   const tierCount = watch('tiers').length;
+  const [startTime, endTime] = watch(['startTime', 'endTime']);
+  const crossesMidnight = !!startTime && !!endTime && endTime < startTime;
 
   return (
     <>
@@ -98,9 +100,18 @@ function EventForm({ eventId, initial }: { eventId?: string; initial: EventFormV
               <Field label="שם האירוע" required error={errors.name?.message}>
                 {(a) => <Input {...a} {...register('name')} autoComplete="off" />}
               </Field>
-              <Field label="תאריך" required error={errors.eventDate?.message}>
-                {(a) => <DateInput {...a} {...register('eventDate')} />}
-              </Field>
+              <div className={styles.when}>
+                <Field label="תאריך" required error={errors.eventDate?.message} className={styles.whenDate}>
+                  {(a) => <DateInput {...a} {...register('eventDate')} />}
+                </Field>
+                <Field label="שעת התחלה" error={errors.startTime?.message}>
+                  {(a) => <TimeInput {...a} {...register('startTime')} />}
+                </Field>
+                <Field label="שעת סיום" error={errors.endTime?.message}>
+                  {(a) => <TimeInput {...a} {...register('endTime')} />}
+                </Field>
+              </div>
+              {crossesMidnight && <Caption>שעת הסיום מוקדמת משעת ההתחלה, כלומר האירוע נמשך אחרי חצות.</Caption>}
               <Field label="מקום" error={errors.location?.message}>
                 {(a) => <Input {...a} {...register('location')} autoComplete="off" />}
               </Field>
@@ -109,7 +120,7 @@ function EventForm({ eventId, initial }: { eventId?: string; initial: EventFormV
               </Field>
             </FormSection>
 
-            <Accordion title="תחזית כרטיסים" meta={tierCount > 0 ? `${tierCount} סבבים` : 'אופציונלי'} defaultOpen={isEdit && (tierCount > 0 || !!initial.averageTicketPrice || !!initial.expectedTicketCount)}>
+            <Accordion title="תחזית כרטיסים" meta={tierCount > 0 ? `${tierCount} סבבים` : 'אופציונלי'}>
               <Stack gap="3">
                 <FormSection description="מחיר ממוצע וכמות צפויה משמשים לנקודת האיזון ולרווח הצפוי כשאין סבבים.">
                   <Field label="מחיר כרטיס ממוצע" error={errors.averageTicketPrice?.message}>
@@ -165,7 +176,7 @@ function EventForm({ eventId, initial }: { eventId?: string; initial: EventFormV
             </StickyFormActions>
 
             {isEdit && (
-              <Button variant="ghost" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>
+              <Button variant="danger" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>
             )}
           </Stack>
         </form>

@@ -32,7 +32,7 @@ export function BreakdownSection({ eventId, total }: { eventId: string; total: n
   const breakdown = useBreakdown(eventId);
   const [dimension, setDimension] = useState<'category' | 'vendor'>('category');
   return (
-    <Section id="reports" title="דוחות ופירוקים" meta={<>סה״כ הוצאות מוסכמות <Money value={total} /></>}>
+    <Section id="reports" title="דוחות ופירוקים" icon={PieChart} meta={<>סה״כ הוצאות מוסכמות <Money value={total} /></>}>
       {breakdown.isLoading ? <LoadingBlock rows={2} height="64px" />
         : breakdown.error ? <ErrorState onRetry={() => void breakdown.refetch()} retrying={breakdown.isFetching} />
           : breakdown.data && breakdown.data.byCategory.length === 0 ? (
@@ -80,7 +80,7 @@ export function BreakdownSection({ eventId, total }: { eventId: string; total: n
 export function VendorsContactsSection({ vendors }: { vendors: { id: string; name: string; phone: string; expenseNames: string[] }[] }) {
   if (vendors.length === 0) return null;
   return (
-    <Section id="vendors" title="ספקים ואנשי קשר">
+    <Section id="vendors" title="ספקים ואנשי קשר" count={vendors.length} icon={Truck}>
       <Card padded={false}>
         <ul className={styles.contacts}>
           {vendors.map((v) => (

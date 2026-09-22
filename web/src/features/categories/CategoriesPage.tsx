@@ -122,7 +122,7 @@ function CategoryTreeItem({ category, usage, onEdit, onAddSub, onEditSub, onArch
         <div className={styles.actions}>
           {!category.isArtists && <Button variant="secondary" compact icon={Plus} onClick={onAddSub}>הוסף תת־קטגוריה</Button>}
           <Button variant="ghost" compact icon={Pencil} onClick={onEdit}>ערוך</Button>
-          {!category.isArtists && <Button variant="ghost" compact icon={Archive} onClick={onArchive}>העבר לארכיון</Button>}
+          {!category.isArtists && <Button variant="danger" compact icon={Archive} onClick={onArchive}>העבר לארכיון</Button>}
         </div>
       </div>
     </li>

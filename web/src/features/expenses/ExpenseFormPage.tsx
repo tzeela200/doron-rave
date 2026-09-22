@@ -333,7 +333,7 @@ function ExpenseForm({ eventId, eventName, expenseId, initial }: { eventId: stri
         {isEdit && current && expenseId && (
           <PaymentsPanel eventId={eventId} expenseId={expenseId} agreed={current.agreedAmount} paid={current.paidAmount} remaining={current.remainingAmount} />
         )}
-        {isEdit && <Button variant="ghost" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
+        {isEdit && <Button variant="danger" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
       </PageContainer>
 
       <ConfirmArchive

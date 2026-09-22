@@ -33,6 +33,15 @@ export function performanceDurationMinutes(start: string | null | undefined, end
   return minutes;
 }
 
+/**
+ * Event hours use the same arithmetic (UX addendum 2026-09-22 §10): duration only when both exist,
+ * end < start crosses midnight, start == end shows no duration (never 24h). Information only —
+ * it never feeds P&L, break-even or readiness.
+ */
+export function eventDurationMinutes(start: string | null | undefined, end: string | null | undefined): number | null {
+  return performanceDurationMinutes(start, end);
+}
+
 /** Night order: hours before 12:00 belong to the night after (21:00 < 23:30 < 00:30 < 02:00). */
 export function nightSortKey(value: string | null | undefined): number | null {
   const m = parseTimeToMinutes(value);
@@ -140,3 +149,17 @@ export function findOverlaps(
     .filter((x): x is { o: LineupSource; interval: Interval } => x.interval !== null && intervalsOverlap(mine, x.interval))
     .map((x) => x.o.displayName);
 }
+
+/** First start → latest end of the night, for a one-line summary. Null when there are no slots. */
+export function lineupSpan(slots: readonly LineupSlot[]): { start: string; end: string } | null {
+  let first: LineupSlot | null = null;
+  let last: { slot: LineupSlot; end: number } | null = null;
+  for (const slot of slots) {
+    const i = toInterval(slot.start, slot.end);
+    if (!i) continue;
+    if (!first || (nightSortKey(slot.start) ?? 0) < (nightSortKey(first.start) ?? 0)) first = slot;
+    if (!last || i.end > last.end) last = { slot, end: i.end };
+  }
+  return first && last ? { start: first.start, end: last.slot.end } : null;
+}
+

@@ -1,0 +1,24 @@
+.banner {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  block-size: var(--event-banner-height);
+  padding: var(--space-1-5);
+  background-color: var(--color-text-strong);
+  background-size: cover;
+  background-position: center;
+  isolation: isolate;
+}
+/* Soft dark gradient, lighter at the top where the badge sits; a hairline of warm light at the
+   bottom edge separates image from card body. */
+.banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(0, 0, 0, .5), rgba(0, 0, 0, .12) 70%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08);
+}
+/* Full-bleed inside a padded card */
+.bleed { margin: calc(-1 * var(--card-padding)) calc(-1 * var(--card-padding)) 0; }

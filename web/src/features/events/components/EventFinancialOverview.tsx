@@ -1,8 +1,7 @@
 import { Banknote, CircleDollarSign, Scale, TrendingUp, Wallet } from 'lucide-react';
-import { KpiCard, Card, Progress } from '@/design-system/Card';
+import { Card, IconTile, KpiCard, Progress } from '@/design-system/Card';
 import { InlineMessage } from '@/design-system/feedback';
-import { Icon } from '@/design-system/Icon';
-import { Grid, Stack } from '@/design-system/layout';
+import { Stack } from '@/design-system/layout';
 import { Caption, Label, Money } from '@/design-system/Typography';
 import { formatMoney, formatNumber } from '@/lib/format';
 import type { EventSummaryVM } from '../data/eventsRepository';
@@ -10,7 +9,19 @@ import styles from './EventFinancialOverview.module.css';
 
 // Financial overview of one event (Book 05 §7.1, Book 06 §31). A hierarchy, not a grid of ten
 // equal KPIs: core actuals → planning → tickets → forecast. Receives a ready view-model; the
-// formulas live in SQL views and src/domain/pnl.ts only.
+// formulas live in SQL views and src/domain/pnl.ts only. Colours follow Book 02 V3 §5:
+// income teal, remaining-to-pay orange, profit/loss green/red, agreed expenses neutral.
+
+export function EventKpis({ event }: { event: EventSummaryVM }) {
+  return (
+    <div className={styles.kpis}>
+      <KpiCard label="הכנסות" icon={Banknote} tone="teal" value={formatMoney(event.incomeTotal)} />
+      <KpiCard label="הוצאות מוסכמות" icon={Wallet} tone="neutral" value={formatMoney(event.agreedExpenses)} />
+      <KpiCard label="יתרה" icon={Scale} tone={event.balance < 0 ? 'danger' : 'success'} value={formatMoney(event.balance)} negative={event.balance < 0} meta="הכנסות פחות הוצאות מוסכמות" />
+      <KpiCard label="נותר לשלם" icon={CircleDollarSign} tone="brand" value={formatMoney(event.remainingToPay)} meta={<>שולם <Money value={event.paidTotal} /></>} />
+    </div>
+  );
+}
 
 export function EventFinancialOverview({ event }: { event: EventSummaryVM }) {
   const { pnl } = event;
@@ -23,13 +34,7 @@ export function EventFinancialOverview({ event }: { event: EventSummaryVM }) {
 
   return (
     <Stack gap="1-5">
-      <Grid columns={2} desktopColumns={4}>
-        <KpiCard label="הכנסות" icon={Banknote} value={formatMoney(event.incomeTotal)} />
-        <KpiCard label="הוצאות מוסכמות" icon={Wallet} value={formatMoney(event.agreedExpenses)} />
-        <KpiCard label="יתרה" icon={Scale} value={formatMoney(event.balance)} negative={event.balance < 0} meta="הכנסות פחות הוצאות מוסכמות" />
-        <KpiCard label="נותר לשלם" icon={CircleDollarSign} value={formatMoney(event.remainingToPay)} meta={<>שולם <Money value={event.paidTotal} /></>} />
-      </Grid>
-
+      <EventKpis event={event} />
       <Card>
         <dl className={styles.rows}>
           <div className={styles.row}>
@@ -83,7 +88,7 @@ export function EventFinancialOverview({ event }: { event: EventSummaryVM }) {
 
       <Card>
         <div className={styles.forecastHead}>
-          <span className={styles.forecastIcon}><Icon icon={TrendingUp} size="sm" /></span>
+          <IconTile icon={TrendingUp} tone={forecastLoss ? 'danger' : 'success'} />
           <Label as="h3">{pnl.forecastProfit === null ? 'רווח צפוי' : forecastLoss ? 'הפסד צפוי' : 'רווח צפוי'}</Label>
         </div>
         {pnl.forecastProfit === null ? (

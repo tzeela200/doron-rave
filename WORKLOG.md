@@ -805,3 +805,66 @@ artistLineup.overlaps_with. **אין ניחושים.**
 אפס שגיאות JS · אפס ניגודיות/מגע/גלישה · `Index.html` לא נגע.
 
 - **נפרס @23** (באישור המשתמשת, 2026-09-20).
+
+
+## 2026-09-22d — Design System v2 "Executive Luxury Refresh" (לא נדחף; הוחלף ב-22e)
+
+**מקור:** בקשת המשתמשת, מסמך "Design System Update v2". Refinement בלבד — בלי לשנות שפה,
+ניווט, Layout או רכיבים. ההחלטות נעולות ב-HANDOFF §0א.
+
+### מה השתנה
+- `tokens.css`: ערכי v2 (טקסט, גבול, Warning, Secondary חדש), צל אחד, Radius 12, תנועה 200ms ease.
+- `Card.tsx`: `IconDisc` (אייקון בעיגול בגוון) + `KpiCard` בסדר אייקון → מספר → Label → שורה;
+  Badge בגובה 28px; Progress 8px.
+- `Icon.tsx`: קו 1.75px absolute, גדלים `xs`/`sm` בלבד.
+- `QuickAction`: צבע לכל קיצור (בית + ניהול, אותו צבע לאותו יעד).
+- `EventCard`: Banner 80px (`src/assets/event-banner.webp`, 1.3KB, נגזר מ-`brand/link-preview`).
+- `layout.tsx`: `CollapsibleSections` — בתוכו כל `Section` הוא Accordion סגור. מסך האירוע
+  עוטף בו את כל הסקשנים; ה-KPI (`EventKpis`) מחוץ לו.
+- שעות אירוע: מיגרציה `20260922110000_event_times.sql` (הוחלה על `fvttcoavqmvzmqqgkmta`),
+  טופס + תצוגה ב-Header של "פרטי אירוע". `save_event` כותב שעות רק אם המפתח נשלח,
+  כך שגרסת הלקוח שבאוויר לא מוחקת אותן.
+- "תחזית כרטיסים" בטופס האירוע נפתחת רק בלחיצה (גם בעריכה).
+
+### אימות
+- DB: טרנזקציה שבוטלה — שמירה 22:00–07:00, שמירה בלי מפתחות לא מוחקת, זהות חסומה. הרשאות anon ללא שינוי.
+- `tsc` נקי · ESLint נקי · 58 בדיקות (3 חדשות לשעות) · build עובר.
+- Harness (נתוני דוגמה): בית, אירוע, טופס; 320px בלי גלישה ב-9 מסכים עם כל הסקשנים פתוחים.
+
+
+## 2026-09-22e — יישור ל-Design System Canon V3 + UX Addendum (לא נדחף)
+
+**מקור:** חבילת `DORONS_RAVE_DESIGN_UX_UPDATE_PACKAGE_2026-09-22.zip` (קנון) + פרומפט "Executive Luxury
+Refinement" (הנחיה). V3 גובר על v2 — פירוט ב-HANDOFF §0א.
+
+### מה השתנה מול 22d
+- טוקנים חזרו לפלטת V3: טקסט `#1F2937`, גבול `#E5E7EB`, אזהרה `#CA8A04`, רך כתום `#FFF4E6`,
+  טורקיז `--color-teal`; הכחול הוסר (`--color-info` = טורקיז). רדיוס 12/16/24, תנועה 120/180/240.
+- `IconTile` (ריבוע מעוגל) במקום עיגול; KPI בסדר Tile → Label → Value; ערך KPI לא נשבר ומתכווץ לפי רוחב הכרטיס.
+- כפתורים: ghost = Tertiary טורקיז; "העבר לארכיון" (7 מקומות) = Danger Soft.
+- טיפוגרפיה: כותרות 700 בטקסט חזק; כותרת עמוד גדולה יותר; ריווח בין אזורים 32/40/48.
+- כרטיס אירוע: Banner 72px, צל, כותרת 20px.
+- מסך אירוע לפי Addendum §6: Hero + תמונה פיננסית + מוכנות גלויים; 6 סקשנים ב-Accordion עם
+  אייקון, "(N)" וסיכום; הפעולה מחוץ לכפתור הפתיחה.
+- שעות: מיגרציה `20260922120000_event_times_canon_names.sql` (הוחלה) — שמות קנוניים, הוסרה חסימת
+  התחלה==סיום, views נבנו מחדש עם אותן הרשאות. `eventDurationMinutes` (helper יחיד), `lineupSpan`.
+- סימן המותג בכותרת הבית.
+
+### אימות
+- DB בטרנזקציה שבוטלה: שמירה/טעינה 22:00–07:00, לקוח בלי מפתחות לא מוחק, זהות נשמרת, ניקוי ל-null.
+  הרשאות views: authenticated SELECT בלבד.
+- tsc · ESLint · 61 בדיקות · build — עוברים.
+
+
+## 2026-09-22f — החלטות המשתמשת + ליטוש אחרון, נדחף
+
+**החלטות (המשתמשת, 2026-09-22):** אין כחול — ספקים ניטרלי · התחלה == סיום חסום · סימן המותג נשאר ·
+Push כולל `vercel.json`.
+
+- מיגרציה `20260922130000_event_times_equal_blocked.sql` (הוחלה): check בטבלה + `event_hours_equal` ב-`save_event`;
+  refine בטופס על שדה הסיום. נבדק בטרנזקציה שבוטלה: שמירה חסומה, UPDATE ישיר נחסם ב-check.
+- ליטוש: `EventBanner` משותף לכרטיס ול-Hero; Hero עם עובדות תאריך/שעות/מקום; KPI — Label שקט, ערך
+  30/36px, שורה משנית מופרדת בקו; גישה מהירה — רקע Accent Soft לכל אריח; כרטיס אירוע — הרמה עדינה
+  ב-hover ותחתית עובדות מובחנת; Accordion/Sheet/Dialog — 200ms (מכבד reduced-motion).
+- `web/vercel.json`: SPA rewrite + `sw.js` no-cache.
+- אימות: tsc · ESLint · 61 בדיקות · build · 9 מסכים × 7 רוחבים (320–1440) בלי גלישה.

@@ -84,7 +84,7 @@ interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
 export function IconButton({ icon, label, directional, tone = 'default', className, type = 'button', ...rest }: IconButtonProps) {
   return (
     <button {...rest} type={type} aria-label={label} title={label} className={cx(styles.iconButton, tone === 'soft' && styles.iconSoft, className)}>
-      <Icon icon={icon} size="md" directional={directional} />
+      <Icon icon={icon} size="sm" directional={directional} />
     </button>
   );
 }
@@ -100,7 +100,7 @@ interface FloatingCreateProps {
 export function FloatingCreateButton({ icon, label, onClick, to }: FloatingCreateProps) {
   const content = (
     <>
-      <Icon icon={icon} size="md" />
+      <Icon icon={icon} size="sm" />
       <span>{label}</span>
     </>
   );

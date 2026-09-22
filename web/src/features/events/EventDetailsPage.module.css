@@ -1,2 +1,21 @@
-.meta { display: inline-flex; align-items: center; gap: var(--space-0-5); color: var(--color-text-secondary); font-size: var(--font-size-body); }
+/* Event hero: shared brand banner, then the event's when/where as three calm facts */
+.hero { display: flex; flex-direction: column; gap: var(--space-2); overflow: hidden; }
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding-block: var(--space-1);
+}
+.fact { display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; }
+.fact dt {
+  display: inline-flex; align-items: center; gap: var(--space-0-5);
+  font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); color: var(--color-text-secondary);
+}
+.fact dd {
+  margin: 0; display: flex; flex-direction: column;
+  font-size: var(--font-size-title); line-height: var(--line-height-title);
+  font-weight: var(--font-weight-bold); color: var(--color-text-strong); overflow-wrap: anywhere;
+}
+.sub { font-size: var(--font-size-label); font-weight: var(--font-weight-regular); color: var(--color-text-secondary); }
 .notes { color: var(--color-text-secondary); white-space: pre-wrap; }

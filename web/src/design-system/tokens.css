@@ -1,5 +1,7 @@
-/* DORON'S RAVE — Design Tokens (Book 02 §13.2 Reference Contract). Light only (ADR-009).
-   No purple / violet / lilac anywhere (ADR-012). Components consume these variables only. */
+/* DORON'S RAVE — Design Tokens. Source of truth: Book 02 — Design System Canon V3
+   (Executive Luxury Refresh, 2026-09-22), which replaces earlier Book 02 colour/token values.
+   Light only. No purple / lilac / violet. Colour lives in icons, badges, progress, KPI accents and
+   actions — never as a wash over a screen. Every hue below is from the V3 palette. */
 
 :root {
   /* Core */
@@ -10,7 +12,7 @@
   --color-text-primary: #1F2937;
   --color-text-secondary: #6B7280;
   --color-text-muted: #9CA3AF;
-  --color-text-strong: #374151;
+  --color-text-strong: #111827; /* V3: numbers and main titles */
   --color-text-max: #111827;
   --color-border-default: #E5E7EB;
   --color-border-strong: #D1D5DB;
@@ -20,20 +22,26 @@
   --color-brand-primary: #D97706;
   --color-brand-hover: #B45309;
   --color-brand-pressed: #92400E;
-  --color-brand-soft: #FFF7ED;
+  --color-brand-soft: #FFF4E6;
   --color-brand-100: #FFEDD5;
   --color-brand-200: #FED7AA;
   --color-brand-800: #92400E;
 
+  /* Teal (V3): information, counts, secondary navigation — never a substitute for Primary */
+  --color-teal: #0F766E;
+  --color-teal-soft: #E7F6F4;
+
   /* Semantic */
   --color-success: #16A34A;
-  --color-success-soft: #F0FDF4;
+  --color-success-soft: #ECFDF3;
   --color-warning: #CA8A04;
-  --color-warning-soft: #FEFCE8;
+  --color-warning-soft: #FFF8E1;
   --color-danger: #DC2626;
   --color-danger-soft: #FEF2F2;
-  --color-info: #2563EB;
-  --color-info-soft: #EFF6FF;
+  --color-danger-border: #FECACA; /* V3 §10 Danger Soft button */
+  /* V3 has no blue: "information" is teal. */
+  --color-info: var(--color-teal);
+  --color-info-soft: var(--color-teal-soft);
 
   /* Text that must read as brand on white uses the brand hover step (#B45309, 5:1 on white).
      Status badges keep their text neutral and carry the semantic hue on icon + border, because
@@ -52,13 +60,17 @@
   --space-6: 48px;
   --space-8: 64px;
 
-  /* Radius (Book 02 §4.1) */
+  /* Radius — V3 §11 keeps the hierarchy: control 12, card 16, sheet/modal 24. */
   --radius-none: 0;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-pill: 999px;
+  --radius-circle: 50%;
+  --radius-control: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-sheet: var(--radius-xl);
 
   /* Borders (Book 02 §4.2) */
   --border-default: 1px solid var(--color-border-default);
@@ -67,10 +79,11 @@
   --focus-ring: 2px solid var(--color-brand-primary);
   --focus-offset: 2px;
 
-  /* Shadows (Book 02 §4.3) — borders first */
+  /* Shadow — V3 §11: one soft shadow, only where separation is needed; borders first. */
   --shadow-none: none;
-  --shadow-sm: 0 1px 2px rgba(17, 24, 39, .05);
-  --shadow-md: 0 8px 24px rgba(17, 24, 39, .08);
+  --shadow: 0 2px 12px rgba(0, 0, 0, .05);
+  --shadow-sm: var(--shadow);
+  --shadow-md: var(--shadow);
   --color-backdrop: rgba(17, 24, 39, .4);
 
   /* Typography (Book 02 §5.1) — Heebo only */
@@ -97,12 +110,9 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* Icons (Book 02 §6) */
+  /* Icons — v2: one size (20px), 16px only inline with small text */
   --icon-xs: 16px;
   --icon-sm: 20px;
-  --icon-md: 24px;
-  --icon-lg: 28px;
-  --icon-xl: 32px;
 
   /* Component geometry */
   --control-height: 48px;
@@ -110,22 +120,28 @@
   --touch-target: 48px;
   --accordion-header-min: 60px;
   --kpi-min-height: 112px;
+  --kpi-icon: 40px;
+  --kpi-value-max: 30px;
+  --badge-height: 28px;
+  --progress-height: 8px;
+  --event-banner-height: 72px; /* V3 §8: 48–72px */
   --textarea-min: 120px;
   --bottom-nav-height: 64px;
   --app-header-height: 56px;
 
   /* Layout (Book 02 §3.2) */
   --page-gutter: var(--space-2);
-  --section-gap: var(--space-3);
-  --card-gap: var(--space-1-5);
+  --section-gap: var(--space-4); /* more air between regions (Executive Luxury refinement) */
+  --card-gap: var(--space-2);
   --card-padding: var(--space-2);
   --content-max: 100%;
   --form-max: 640px;
 
-  /* Motion (Book 02 §12.3) */
+  /* Motion — V3 §18: fast 120, standard 180, slow 240; accordion 180–220. */
   --motion-fast: 120ms;
   --motion-base: 180ms;
   --motion-slow: 240ms;
+  --motion-accordion: 200ms;
   --ease-out: cubic-bezier(.2, .8, .2, 1);
   --ease-in: cubic-bezier(.4, 0, 1, 1);
 
@@ -139,8 +155,9 @@
 @media (min-width: 600px) {
   :root {
     --page-gutter: var(--space-3);
+    --section-gap: var(--space-5);
     --card-gap: var(--space-2);
-    --card-padding: 20px; /* Book 02 §3.2 tablet card padding */
+    --card-padding: var(--space-3);
     --content-max: 960px;
   }
 }
@@ -149,8 +166,10 @@
 @media (min-width: 1024px) {
   :root {
     --page-gutter: var(--space-4);
-    --section-gap: var(--space-4);
+    --section-gap: var(--space-6);
+    --card-gap: var(--space-3);
     --card-padding: var(--space-3);
     --content-max: 1200px;
+    --kpi-value-max: 36px;
   }
 }

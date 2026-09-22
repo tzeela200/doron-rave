@@ -4,10 +4,12 @@ import { Icon } from '@/design-system/Icon';
 import { CardTitle, Money } from '@/design-system/Typography';
 import { formatDate, formatDaysLabel, formatNumber } from '@/lib/format';
 import type { EventSummaryVM } from '../data/eventsRepository';
+import { EventBanner } from './EventBanner';
 import styles from './EventCard.module.css';
 
 // Event card (Book 05 §4.2, §5.1; Book 06 §30). At most three financial facts, each only
 // when it exists. Forecast and actual never share a label (ADR-060).
+// Book 02 V3 §8: the shared EventBanner on top — the first thing the eye meets.
 
 export function EventCard({ event, state }: { event: EventSummaryVM; state?: unknown }) {
   const { pnl } = event;
@@ -17,9 +19,9 @@ export function EventCard({ event, state }: { event: EventSummaryVM; state?: unk
 
   return (
     <InteractiveCard to={`/events/${event.id}`} state={state} className={styles.card}>
+      <EventBanner>{days && <Badge tone={event.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
       <div className={styles.head}>
-        <CardTitle as="h3">{event.name}</CardTitle>
-        {days && <Badge tone={event.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}
+        <CardTitle as="h3" className={styles.title}>{event.name}</CardTitle>
       </div>
       <div className={styles.meta}>
         <span className={styles.metaItem}><Icon icon={CalendarDays} size="xs" /><span className="num">{formatDate(event.eventDate)}</span></span>

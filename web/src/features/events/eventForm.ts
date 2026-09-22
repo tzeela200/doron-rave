@@ -20,23 +20,33 @@ export const tierSchema = z.object({
 export const eventFormSchema = z.object({
   name: z.string().trim().min(1, 'יש להזין שם אירוע'),
   eventDate: z.string().refine(isIsoDate, 'יש להזין תאריך אירוע'),
+  startTime: z.string(),
+  endTime: z.string(),
   location: z.string(),
   generalNotes: z.string(),
   averageTicketPrice: optionalMoney,
   expectedTicketCount: optionalCount,
   tiers: z.array(tierSchema).max(MAX_TICKET_TIERS, 'אפשר להגדיר עד 20 סבבי תמחור'),
-});
+})
+  // Business decision 2026-09-22: equal hours are an error — no implicit 24-hour events.
+  // The same rule is enforced by save_event (event_hours_equal) and a table check.
+  .refine((v) => !v.startTime || !v.endTime || v.startTime !== v.endTime, {
+    path: ['endTime'],
+    message: 'שעת ההתחלה ושעת הסיום של האירוע לא יכולות להיות זהות',
+  });
 
 export type EventFormValues = z.infer<typeof eventFormSchema>;
 
 export const emptyEventForm: EventFormValues = {
-  name: '', eventDate: '', location: '', generalNotes: '', averageTicketPrice: '', expectedTicketCount: '', tiers: [],
+  name: '', eventDate: '', startTime: '', endTime: '', location: '', generalNotes: '', averageTicketPrice: '', expectedTicketCount: '', tiers: [],
 };
 
 export function eventToForm(e: EventSummaryVM): EventFormValues {
   return {
     name: e.name,
     eventDate: e.eventDate,
+    startTime: e.startTime ?? '',
+    endTime: e.endTime ?? '',
     location: e.location,
     generalNotes: e.generalNotes,
     averageTicketPrice: e.averageTicketPrice === null ? '' : String(e.averageTicketPrice),
@@ -55,6 +65,8 @@ export function formToEventInput(v: EventFormValues, id?: string): EventInput {
     id,
     name: v.name,
     eventDate: v.eventDate,
+    startTime: v.startTime || null,
+    endTime: v.endTime || null,
     location: v.location,
     generalNotes: v.generalNotes,
     averageTicketPrice: parseAmount(v.averageTicketPrice),

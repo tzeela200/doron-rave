@@ -104,7 +104,7 @@ export function ArtistDetailPage() {
 
         <NotesSection entityType="artist" entityId={a.id} allowReminders={false} />
 
-        {!a.isArchived && <Button variant="ghost" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
+        {!a.isArchived && <Button variant="danger" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
       </PageContainer>
       {editing && <ArtistSheet artist={a} onClose={() => setEditing(false)} />}
       <ConfirmArchive

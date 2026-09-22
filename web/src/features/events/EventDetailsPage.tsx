@@ -1,12 +1,13 @@
-import { CalendarDays, Copy, MapPin, Pencil } from 'lucide-react';
+import { CalendarDays, Clock, Copy, MapPin, Pencil } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { AppHeader } from '@/components/navigation/navigation';
 import { LinkButton } from '@/design-system/Button';
 import { Badge, Card } from '@/design-system/Card';
 import { ErrorState, LoadingBlock } from '@/design-system/feedback';
 import { Icon } from '@/design-system/Icon';
-import { Inline, PageContainer, Section, Stack } from '@/design-system/layout';
+import { CollapsibleSections, Inline, PageContainer, Section } from '@/design-system/layout';
 import { Body } from '@/design-system/Typography';
+import { eventDurationMinutes } from '@/domain/lineup';
 import { LineupSection } from '@/features/artists/components/LineupSection';
 import { ExpensesSection } from '@/features/expenses/components/ExpensesSection';
 import { IncomeSection } from '@/features/income/components/IncomeSection';
@@ -15,13 +16,16 @@ import { useEventExpenses, useEventSummary, useVendors } from '@/features/querie
 import { ReadinessSection } from '@/features/readiness/components/ReadinessSection';
 import { BreakdownSection, VendorsContactsSection } from '@/features/reports/components/BreakdownSection';
 import { userMessage } from '@/lib/errors';
-import { formatDate, formatDaysLabel, formatWeekday } from '@/lib/format';
+import { formatDate, formatDaysLabel, formatDuration, formatWeekday } from '@/lib/format';
+import { EventBanner } from './components/EventBanner';
 import { EventFinancialOverview } from './components/EventFinancialOverview';
 import styles from './EventDetailsPage.module.css';
 
 // EVENT_DETAILS — the work centre of one event (Book 05 §7, ADR-026). Fixed order:
 // Hero → Financial → Readiness → Expenses/Payments → Income/Tickets → Artists/Line-up →
 // Vendors → Notes/Reminders → Reports. Each section loads and fails on its own.
+// UX addendum 2026-09-22 §6: hero, financial overview and readiness stay visible; expenses,
+// income, line-up, vendors, notes and reports are accordions, closed, with count + summary.
 
 export function EventDetailsPage() {
   const { eventId = '' } = useParams();
@@ -56,22 +60,32 @@ export function EventDetailsPage() {
         action={!readOnly ? <LinkButton to={`/events/${e.id}/edit`} variant="secondary" compact icon={Pencil}>ערוך</LinkButton> : undefined}
       />
       <PageContainer>
-        <Card>
-          <Stack gap="1-5">
-            <Inline gap="1" justify="between">
-              <Inline gap="2">
-                <span className={styles.meta}><Icon icon={CalendarDays} size="sm" /><span className="num">{formatWeekday(e.eventDate)} · {formatDate(e.eventDate)}</span></span>
-                {e.location && <span className={styles.meta}><Icon icon={MapPin} size="sm" /><bdi>{e.location}</bdi></span>}
-              </Inline>
-              {readOnly ? <Badge>בארכיון</Badge> : days && <Badge tone={e.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}
-            </Inline>
-            {e.generalNotes && <Body compact className={styles.notes}>{e.generalNotes}</Body>}
-            {!readOnly && (
-              <Inline>
-                <LinkButton to={`/events/${e.id}/clone`} variant="ghost" compact icon={Copy}>שכפל אירוע</LinkButton>
-              </Inline>
+        <Card variant="summary" className={styles.hero}>
+          <EventBanner>{readOnly ? <Badge>בארכיון</Badge> : days && <Badge tone={e.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
+          <dl className={styles.facts}>
+            <div className={styles.fact}>
+              <dt><Icon icon={CalendarDays} size="xs" />תאריך</dt>
+              <dd><span className="num">{formatDate(e.eventDate)}</span><span className={styles.sub}>{formatWeekday(e.eventDate)}</span></dd>
+            </div>
+            {(e.startTime || e.endTime) && (
+              <div className={styles.fact}>
+                <dt><Icon icon={Clock} size="xs" />שעות</dt>
+                <dd><EventHours start={e.startTime} end={e.endTime} /></dd>
+              </div>
             )}
-          </Stack>
+            {e.location && (
+              <div className={styles.fact}>
+                <dt><Icon icon={MapPin} size="xs" />מקום</dt>
+                <dd><bdi>{e.location}</bdi></dd>
+              </div>
+            )}
+          </dl>
+          {e.generalNotes && <Body compact className={styles.notes}>{e.generalNotes}</Body>}
+          {!readOnly && (
+            <Inline>
+              <LinkButton to={`/events/${e.id}/clone`} variant="ghost" compact icon={Copy}>שכפל אירוע</LinkButton>
+            </Inline>
+          )}
         </Card>
 
         <Section id="financial" title="תמונה פיננסית">
@@ -79,15 +93,28 @@ export function EventDetailsPage() {
         </Section>
 
         <ReadinessSection eventId={e.id} />
-        <ExpensesSection eventId={e.id} agreedTotal={e.agreedExpenses} />
-        <IncomeSection eventId={e.id} incomeTotal={e.incomeTotal} />
-        <LineupSection eventId={e.id} artistsCount={e.artistsCount} />
-        <EventVendors eventId={e.id} />
-        <NotesSection entityType="event" entityId={e.id} />
-        <BreakdownSection eventId={e.id} total={e.agreedExpenses} />
+
+        <CollapsibleSections>
+          <ExpensesSection eventId={e.id} totals={{ count: e.expensesCount, agreed: e.agreedExpenses, paid: e.paidTotal, remaining: e.remainingToPay }} />
+          <IncomeSection eventId={e.id} incomeTotal={e.incomeTotal} />
+          <LineupSection eventId={e.id} artistsCount={e.artistsCount} />
+          <EventVendors eventId={e.id} />
+          <NotesSection entityType="event" entityId={e.id} />
+          <BreakdownSection eventId={e.id} total={e.agreedExpenses} />
+        </CollapsibleSections>
       </PageContainer>
     </>
   );
+}
+
+/** Addendum §4: "22:00–07:00" (+ derived duration); one hour alone is shown alone; never 00:00. */
+function EventHours({ start, end }: { start: string | null; end: string | null }) {
+  if (start && end) {
+    const duration = formatDuration(eventDurationMinutes(start, end));
+    return <><span className="num" dir="ltr">{start}–{end}</span>{duration && <span className={styles.sub}>{duration}</span>}</>;
+  }
+  if (start) return <span>התחלה <span className="num">{start}</span></span>;
+  return <span>סיום <span className="num">{end}</span></span>;
 }
 
 /** Vendors linked to this event's expenses, with their phone (from the cached vendor list). */

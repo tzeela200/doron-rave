@@ -21,28 +21,42 @@
   min-block-size: var(--kpi-min-height);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-1);
+  gap: var(--space-1-5);
 }
-.kpiHead { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-1); }
-.kpiIcon {
+.kpiBody { display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; container-type: inline-size; flex: 1; }
+.kpiLabel { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); letter-spacing: .01em; }
+/* V3 §6: the value never breaks (₪ stays attached); it scales down with a narrow card instead. */
+.kpiBody .kpiValue { white-space: nowrap; font-size: clamp(18px, 18cqi, var(--kpi-value-max)); line-height: 1.15; }
+.kpiMeta {
+  margin-block-start: auto;
+  padding-block-start: var(--space-1);
+  border-block-start: var(--border-default);
+  font-size: var(--font-size-caption); color: var(--color-text-secondary); line-height: var(--line-height-label);
+}
+.kpiValue + .kpiMeta { margin-block-start: var(--space-1); }
+
+/* Icon Tile (V3 §6): soft tint + full-strength icon */
+.tile {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: var(--space-5);
-  block-size: var(--space-5);
-  border-radius: var(--radius-md);
-  background: var(--color-brand-soft);
-  color: var(--color-brand-primary);
+  inline-size: var(--kpi-icon);
+  block-size: var(--kpi-icon);
+  border-radius: var(--radius-control);
   flex: none;
 }
-.kpiMeta { font-size: var(--font-size-caption); color: var(--color-text-secondary); line-height: var(--line-height-label); }
+.tile-brand { background: var(--color-brand-soft); color: var(--color-brand-primary); }
+.tile-teal { background: var(--color-teal-soft); color: var(--color-teal); }
+.tile-success { background: var(--color-success-soft); color: var(--color-success); }
+.tile-warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.tile-danger { background: var(--color-danger-soft); color: var(--color-danger); }
+.tile-neutral { background: var(--color-surface-secondary); color: var(--color-text-secondary); }
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-0-5);
-  min-block-size: var(--space-4);
+  block-size: var(--badge-height);
   padding-inline: var(--space-1-5);
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-border-default);
@@ -65,9 +79,9 @@
 
 .progress {
   inline-size: 100%;
-  block-size: var(--space-1);
+  block-size: var(--progress-height);
   border-radius: var(--radius-pill);
-  background: var(--color-surface-secondary);
+  background: var(--color-border-default); /* V3 §9 track #E5E7EB */
   overflow: hidden;
 }
 .progressFill { block-size: 100%; background: var(--color-brand-primary); border-radius: var(--radius-pill); transition: inline-size var(--motion-base) var(--ease-out); }
@@ -88,6 +102,7 @@
 }
 .accordionTitle { flex: 1; font-size: var(--font-size-body-lg); font-weight: var(--font-weight-semibold); min-inline-size: 0; }
 .accordionMeta { font-size: var(--font-size-label); color: var(--color-text-secondary); flex: none; }
-.chevron { color: var(--color-text-secondary); transition: transform var(--motion-base) var(--ease-out); }
+.chevron { color: var(--color-text-secondary); transition: transform var(--motion-accordion) var(--ease-out); }
 .chevronOpen { transform: rotate(180deg); }
-.accordionBody { padding: 0 var(--card-padding) var(--card-padding); }
+.accordionBody { padding: 0 var(--card-padding) var(--card-padding); animation: reveal var(--motion-accordion) var(--ease-out); }
+@keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

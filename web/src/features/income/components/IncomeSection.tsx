@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Archive, Plus, Ticket } from 'lucide-react';
+import { Archive, Banknote, Plus, Ticket } from 'lucide-react';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -124,7 +124,7 @@ function IncomeSheet({ eventId, income, onClose }: { eventId: string; income: In
           <Field label="הערות">
             {(a) => <Textarea {...a} {...register('notes')} rows={2} />}
           </Field>
-          {income && <Button variant="ghost" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
+          {income && <Button variant="danger" icon={Archive} onClick={() => setArchiveOpen(true)}>העבר לארכיון</Button>}
           <button type="submit" hidden />
         </form>
       </BottomSheet>
@@ -149,6 +149,8 @@ export function IncomeSection({ eventId, incomeTotal }: { eventId: string; incom
     <Section
       id="income"
       title="הכנסות וכרטיסים"
+      count={income.data?.length}
+      icon={Banknote}
       meta={incomeTotal !== null ? <>סה״כ <Money value={incomeTotal} /></> : undefined}
       action={<Button variant="secondary" compact icon={Plus} onClick={() => setEditing('new')}>הוסף הכנסה</Button>}
     >

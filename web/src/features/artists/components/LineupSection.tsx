@@ -1,4 +1,4 @@
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle, Mic2, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LinkButton } from '@/design-system/Button';
 import { Card } from '@/design-system/Card';
@@ -6,7 +6,7 @@ import { EmptyState, ErrorState, LoadingBlock } from '@/design-system/feedback';
 import { Icon } from '@/design-system/Icon';
 import { Section, Stack } from '@/design-system/layout';
 import { Money } from '@/design-system/Typography';
-import { buildLineup, type LineupSlot } from '@/domain/lineup';
+import { buildLineup, lineupSpan, type LineupSlot } from '@/domain/lineup';
 import { useEventExpenses } from '@/features/queries';
 import { formatDuration, formatNumber } from '@/lib/format';
 import styles from './LineupSection.module.css';
@@ -50,13 +50,16 @@ export function LineupSection({ eventId, artistsCount }: { eventId: string; arti
     end: e.endTime,
     agreedAmount: e.agreedAmount,
   })));
+  const span = lineupSpan(lineup);
   const withoutTimes = artistExpenses.filter((e) => !lineup.some((s) => s.expenseId === e.id));
 
   return (
     <Section
       id="lineup"
       title="אמנים וליין־אפ"
-      meta={`${formatNumber(artistsCount)} אמנים באירוע`}
+      count={artistsCount}
+      icon={Mic2}
+      meta={span ? <span className="num" dir="ltr">{span.start}–{span.end}</span> : `${formatNumber(artistsCount)} אמנים באירוע`}
       action={<LinkButton to={`/events/${eventId}/expenses/new?artist=1`} variant="secondary" compact icon={Plus}>הוסף אמן</LinkButton>}
     >
       {expenses.isLoading ? <LoadingBlock rows={2} height="64px" />

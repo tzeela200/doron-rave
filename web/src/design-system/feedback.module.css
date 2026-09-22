@@ -36,7 +36,13 @@
   background: var(--color-surface-primary);
 }
 .emptyCompact { padding: var(--space-2); align-items: flex-start; text-align: start; }
-.emptyIcon { color: var(--color-text-muted); }
+.emptyIcon {
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: var(--kpi-icon); block-size: var(--kpi-icon);
+  border-radius: var(--radius-circle);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+}
 .emptyTitle { font-size: var(--font-size-body-lg); font-weight: var(--font-weight-semibold); }
 .emptyText { font-size: var(--font-size-body); color: var(--color-text-secondary); max-inline-size: 40ch; }
 

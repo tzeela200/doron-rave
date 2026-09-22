@@ -1,4 +1,4 @@
-import { ChevronRight, Plus } from 'lucide-react';
+import { ChevronRight, Plus, Wallet } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ExpenseStatusBadge, OverdueBadge } from '@/components/StatusBadges';
@@ -50,7 +50,10 @@ export function ExpenseRow({ expense }: { expense: ExpenseVM }) {
   );
 }
 
-export function ExpensesSection({ eventId, agreedTotal }: { eventId: string; agreedTotal: number | null }) {
+/** Totals come from the event view-model (SQL), never re-summed here. */
+export interface ExpenseTotals { count: number; agreed: number; paid: number; remaining: number }
+
+export function ExpensesSection({ eventId, totals }: { eventId: string; totals: ExpenseTotals }) {
   const expenses = useEventExpenses(eventId);
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
@@ -77,7 +80,9 @@ export function ExpensesSection({ eventId, agreedTotal }: { eventId: string; agr
     <Section
       id="expenses"
       title="הוצאות ותשלומים"
-      meta={agreedTotal !== null ? <>סה״כ מוסכם <Money value={agreedTotal} /></> : undefined}
+      count={totals.count}
+      icon={Wallet}
+      meta={<>סוכם <Money value={totals.agreed} /> · שולם <Money value={totals.paid} /> · נותר <Money value={totals.remaining} /></>}
       action={<LinkButton to={`/events/${eventId}/expenses/new`} variant="primary" compact icon={Plus}>הוסף הוצאה</LinkButton>}
     >
       {expenses.isLoading ? <LoadingBlock rows={3} height="88px" />
