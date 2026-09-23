@@ -82,6 +82,7 @@ export function ExpensesSection({ eventId, totals }: { eventId: string; totals: 
       title="הוצאות ותשלומים"
       count={totals.count}
       icon={Wallet}
+      iconTone="brand"
       meta={<>סוכם <Money value={totals.agreed} /> · שולם <Money value={totals.paid} /> · נותר <Money value={totals.remaining} /></>}
       action={<LinkButton to={`/events/${eventId}/expenses/new`} variant="primary" compact icon={Plus}>הוסף הוצאה</LinkButton>}
     >

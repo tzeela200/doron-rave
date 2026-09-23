@@ -27,6 +27,9 @@
   transition: transform var(--motion-accordion) var(--ease-out), box-shadow var(--motion-accordion) var(--ease-out);
 }
 @media (hover: hover) { .kpi:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); } }
+/* A KPI that jumps to its region: same card, real button affordances */
+.kpiAction { text-align: start; border: 1px solid transparent; cursor: pointer; }
+.kpiAction:active { transform: scale(var(--press-scale)); }
 /* Narrow card (2-up on a phone): tile above the text. Wide card: tile beside it, like a
    dashboard stat — the number becomes the line the eye lands on. */
 .kpiInner { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; min-inline-size: 0; }
@@ -34,16 +37,18 @@
   .kpiInner { flex-direction: row; align-items: flex-start; gap: var(--space-2); }
 }
 .kpiBody { display: flex; flex-direction: column; gap: var(--space-0-5); min-inline-size: 0; container-type: inline-size; flex: 1; }
-.kpiLabel { font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); letter-spacing: .02em; }
+.kpiLabel { display: block; font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); letter-spacing: .02em; }
 /* V3 §6: the value never breaks (₪ stays attached); it scales down with a narrow card instead. */
 .kpiBody .kpiValue { white-space: nowrap; font-size: clamp(16px, 17cqi, var(--kpi-value-max)); line-height: 1.1; margin-block: 2px var(--space-0-5); }
 .kpiMeta {
+  display: block;
   margin-block-start: auto;
   padding-block-start: var(--space-1);
   border-block-start: 1px solid color-mix(in srgb, var(--color-border-default) 55%, transparent);
   font-size: var(--font-size-caption); color: var(--color-text-secondary); line-height: var(--line-height-label);
 }
-.kpiValue + .kpiMeta { margin-block-start: var(--space-1); }
+.kpiValue + .kpiMeta {
+  display: block; margin-block-start: var(--space-1); }
 
 /* Icon Tile (V3 §6): soft tint + full-strength icon */
 .tile {

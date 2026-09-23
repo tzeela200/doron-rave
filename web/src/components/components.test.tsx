@@ -108,7 +108,7 @@ describe('status badges', () => {
 
 describe('LineupRow (Book 06 §36)', () => {
   it('shows the overlap as an inline warning, not a modal', () => {
-    wrap(<ul><LineupRow eventId="e1" slot={{ expenseId: 'x', artistId: 'a', displayName: 'DJ א', realName: null, start: '22:00', end: '00:30', durationMinutes: 150, hourlyCost: null, overlapsWith: ['DJ ב'] }} /></ul>);
+    wrap(<ul><LineupRow eventId="e1" slot={{ expenseId: 'x', artistId: 'a', displayName: 'DJ א', expenseName: 'DJ א', stageName: null, realName: null, start: '22:00', end: '00:30', durationMinutes: 150, agreedAmount: 0, hourlyCost: null, overlapsWith: ['DJ ב'] }} /></ul>);
     expect(screen.getByText(/חפיפה בשעות עם DJ ב/)).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
@@ -145,7 +145,7 @@ describe('J7 — save failure keeps the form (Book 10 §44, ADR-044)', () => {
 });
 
 describe('readiness checklist — marking work as done (user decision 2026-09-23)', () => {
-  it('one tap marks בוצע, sends it to the server and moves the percentage; money is untouched', async () => {
+  it('one tap marks בוצע and sends it to the server; the summary counts items, not percentages', async () => {
     const { ReadinessSection } = await import('@/features/readiness/components/ReadinessSection');
     const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
     client.setQueryData(qk.event.readiness('e1'), [
@@ -162,7 +162,9 @@ describe('readiness checklist — marking work as done (user decision 2026-09-23
     setRequiredItemStatus.mockResolvedValueOnce(undefined);
 
     wrap(<ReadinessSection eventId="e1" />, client);
-    expect(await screen.findByText('0%')).toBeInTheDocument();
+    // counts, never a percentage (user, 2026-09-23)
+    expect((await screen.findAllByText(/מתוך 2 בוצעו/)).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/%/)).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /סמן כבוצע: הגברה/ }));
     await waitFor(() => expect(setRequiredItemStatus).toHaveBeenCalledWith('r1', 'בוצע'));

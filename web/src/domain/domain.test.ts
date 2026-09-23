@@ -229,7 +229,7 @@ describe('readiness (Book 04 §9, Book 10 §15)', () => {
 
 describe('line-up (Book 04 §11, Book 10 §17)', () => {
   const slot = (id: string, start: string, end: string, agreed = 0): LineupSource => ({
-    expenseId: id, artistId: id, displayName: `DJ ${id}`, realName: null, start, end, agreedAmount: agreed,
+    expenseId: id, artistId: id, displayName: `DJ ${id}`, expenseName: `DJ ${id}`, stageName: null, realName: null, start, end, agreedAmount: agreed,
   });
 
   it('AR-01 23:00–01:00 = 120 minutes', () => {

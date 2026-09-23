@@ -66,7 +66,7 @@ export const events: EventSummaryVM[] = [
 
 const expense = (over: Partial<ExpenseVM> & Pick<ExpenseVM, 'id' | 'name' | 'categoryId' | 'categoryName'>): ExpenseVM => ({
   eventId: HARNESS_EVENT_ID, subcategoryId: null, subcategoryName: null, isArtist: false, vendorId: null, vendorName: null,
-  artistId: null, artistName: null, artistRealName: null, plannedAmount: 0, agreedAmount: 0, paidAmount: 0, remainingAmount: 0,
+  artistId: null, artistName: null, artistStageName: null, artistRealName: null, plannedAmount: 0, agreedAmount: 0, paidAmount: 0, remainingAmount: 0,
   manualStatus: 'מתוכנן', computedStatus: 'מתוכנן', hasOverdue: false, nextDueDate: null, paymentsCount: 0, expenseDate: null,
   paidBy: '', internalNotes: '', startTime: null, endTime: null, durationMinutes: null, hourlyCost: null, coverage: [],
   ...over,
@@ -81,7 +81,7 @@ export const expenses: ExpenseVM[] = [
     coverage: [{ id: 'cov1', categoryId: null, subcategoryId: 's-toilets', customLabel: null }] }),
   expense({ id: 'dev-exp-dj1', name: 'DJ דוגמה 1', categoryId: 'c-art', categoryName: 'אמנים', isArtist: true, artistId: 'a1', artistName: 'DJ דוגמה 1',
     agreedAmount: 3000, remainingAmount: 3000, manualStatus: 'סוכם', computedStatus: 'סוכם', startTime: '23:00', endTime: '01:00', durationMinutes: 120, hourlyCost: 1500 }),
-  expense({ id: 'dev-exp-dj2', name: 'DJ דוגמה 2', categoryId: 'c-art', categoryName: 'אמנים', isArtist: true, artistId: 'a2', artistName: 'DJ דוגמה 2', artistRealName: 'שם אמיתי לדוגמה',
+  expense({ id: 'dev-exp-dj2', name: 'DJ דוגמה 2', categoryId: 'c-art', categoryName: 'אמנים', isArtist: true, artistId: 'a2', artistName: 'DJ דוגמה 2', artistStageName: 'DJ דוגמה 2', artistRealName: 'שם אמיתי לדוגמה',
     agreedAmount: 2000, remainingAmount: 2000, startTime: '00:30', endTime: '02:00', durationMinutes: 90, hourlyCost: 1333 }),
 ];
 

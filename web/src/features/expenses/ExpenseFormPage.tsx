@@ -95,7 +95,8 @@ function ExpenseForm({ eventId, eventName, expenseId, initial }: { eventId: stri
     ? findOverlaps(
         { expenseId: expenseId ?? null, start: startTime, end: endTime },
         (eventExpenses.data ?? []).filter((e) => e.isArtist).map((e) => ({
-          expenseId: e.id, artistId: e.artistId, displayName: e.artistName ?? e.name, realName: null, start: e.startTime, end: e.endTime, agreedAmount: e.agreedAmount,
+          expenseId: e.id, artistId: e.artistId, displayName: e.artistName ?? e.name, expenseName: e.name, stageName: e.artistStageName,
+          realName: null, start: e.startTime, end: e.endTime, agreedAmount: e.agreedAmount,
         })),
       )
     : [];

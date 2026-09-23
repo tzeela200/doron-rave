@@ -64,21 +64,31 @@ interface KpiCardProps {
   icon?: LucideIcon;
   tone?: IconTone;
   negative?: boolean;
+  /** Makes the whole card a button that jumps to the matching region. */
+  onClick?: () => void;
+  /** Accessible name for that button, e.g. "הכנסות — מעבר לרשימת ההכנסות". */
+  actionLabel?: string;
 }
 
 /** V3 §6: Icon Tile → Label → Value → secondary line. The card stays white. */
-export function KpiCard({ label, value, empty, meta, icon, tone = 'brand', negative }: KpiCardProps) {
+export function KpiCard({ label, value, empty, meta, icon, tone = 'brand', negative, onClick, actionLabel }: KpiCardProps) {
+  const Tag = onClick ? 'button' : 'div';
   return (
-    <div className={cx(styles.card, styles.surface, styles.raised, styles.kpi)}>
-      <div className={styles.kpiInner}>
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      aria-label={onClick ? actionLabel ?? label : undefined}
+      className={cx(styles.card, styles.surface, styles.raised, styles.kpi, onClick && styles.kpiAction)}
+    >
+      <span className={styles.kpiInner}>
         {icon && <IconTile icon={icon} tone={tone} size="lg" />}
-        <div className={styles.kpiBody}>
-          <Label as="p" className={styles.kpiLabel}>{label}</Label>
-          <Metric empty={empty} negative={negative} className={styles.kpiValue}>{value}</Metric>
-          {meta && <div className={styles.kpiMeta}>{meta}</div>}
-        </div>
-      </div>
-    </div>
+        <span className={styles.kpiBody}>
+          <Label as="span" className={styles.kpiLabel}>{label}</Label>
+          <Metric as="span" empty={empty} negative={negative} className={styles.kpiValue}>{value}</Metric>
+          {meta && <span className={styles.kpiMeta}>{meta}</span>}
+        </span>
+      </span>
+    </Tag>
   );
 }
 

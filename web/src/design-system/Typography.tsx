@@ -73,14 +73,16 @@ interface MetricProps {
   negative?: boolean;
   large?: boolean;
   className?: string;
+  /** 'span' when the metric sits inside a button (a <p> there is invalid HTML). */
+  as?: 'p' | 'span';
 }
 
 /** The main number of a KPI. Null renders the unavailable text, not zero. */
-export function Metric({ children, empty = 'אין נתון', negative = false, large = false, className }: MetricProps) {
+export function Metric({ children, empty = 'אין נתון', negative = false, large = false, className, as: Tag = 'p' }: MetricProps) {
   if (children === null || children === undefined) {
-    return <p className={cx(styles.metric, styles.muted, className)}>{empty}</p>;
+    return <Tag className={cx(styles.metric, styles.muted, className)}>{empty}</Tag>;
   }
-  return <p className={cx(styles.metric, large && styles.metricLarge, negative && styles.negative, className)}>{children}</p>;
+  return <Tag className={cx(styles.metric, large && styles.metricLarge, negative && styles.negative, className)}>{children}</Tag>;
 }
 
 export { cx };

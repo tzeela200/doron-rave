@@ -75,6 +75,10 @@ export interface LineupSource {
   expenseId: string;
   artistId: string | null;
   displayName: string;
+  /** How the slot is filed in the event ("DJ", "אמן אורח"…), when it differs from the name. */
+  expenseName: string;
+  /** stage_name as stored, when there is one. */
+  stageName: string | null;
   realName: string | null;
   start: string | null;
   end: string | null;
@@ -85,10 +89,14 @@ export interface LineupSlot {
   expenseId: string;
   artistId: string | null;
   displayName: string;
+  expenseName: string;
+  stageName: string | null;
   realName: string | null;
   start: string;
   end: string;
   durationMinutes: number;
+  /** The agreed fee, exactly as filed on the expense. */
+  agreedAmount: number;
   hourlyCost: number | null;
   /** Names of the slots this one overlaps with. Warning only, never blocking. */
   overlapsWith: string[];
@@ -124,10 +132,13 @@ export function buildLineup(sources: readonly LineupSource[]): LineupSlot[] {
       expenseId: src.expenseId,
       artistId: src.artistId,
       displayName: src.displayName,
+      expenseName: src.expenseName,
+      stageName: src.stageName,
       realName: src.realName,
       start: toHHMM(src.start),
       end: toHHMM(src.end),
       durationMinutes: duration,
+      agreedAmount: src.agreedAmount,
       hourlyCost: hourlyCost(src.agreedAmount, duration),
       overlapsWith: slots
         .filter((other) => other.src !== src && intervalsOverlap(interval, other.interval))

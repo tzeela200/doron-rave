@@ -231,8 +231,8 @@ export function ReadinessSection({ eventId }: { eventId: string }) {
       id="readiness"
       title="מוכנות הפקה"
       icon={ListChecks}
-      defaultOpen={!!r?.defined}
-      meta={r ? (r.defined ? `${formatNumber(r.percent)}% · ${formatNumber(r.completed)} מתוך ${formatNumber(r.total)} בוצעו` : 'לא הוגדרה רשימה') : undefined}
+      iconTone="success"
+      meta={r ? (r.defined ? `${formatNumber(r.completed)} מתוך ${formatNumber(r.total)} בוצעו` : 'לא הוגדרה רשימה') : undefined}
       action={r?.defined
         ? <Button variant="ghost" compact icon={Pencil} onClick={() => setEditing(true)}>ערוך רשימה</Button>
         : r ? <Button variant="secondary" compact icon={ListChecks} onClick={() => setEditing(true)}>הגדר רשימה</Button> : undefined}
@@ -249,10 +249,11 @@ export function ReadinessSection({ eventId }: { eventId: string }) {
             <Card padded={false}>
               <Stack gap="1" >
                 <div className={styles.summary}>
-                  <p className={styles.percent}><span className="num">{formatNumber(r.percent)}%</span></p>
-                  <Caption>
-                    {formatNumber(r.completed)} מתוך {formatNumber(r.total)} בוצעו{r.inProgress > 0 ? ` · ${formatNumber(r.inProgress)} בטיפול` : ''}
-                  </Caption>
+                  {/* Counts, not percentages (user, 2026-09-23). The bar still shows the share visually. */}
+                  <p className={styles.count}>
+                    <span className="num">{formatNumber(r.completed)}</span> מתוך <span className="num">{formatNumber(r.total)}</span> בוצעו
+                  </p>
+                  {r.inProgress > 0 && <Caption>{formatNumber(r.inProgress)} בטיפול</Caption>}
                   <Progress value={r.percent ?? 0} label={`${r.completed} מתוך ${r.total} רכיבים בוצעו`} tone={r.percent === 100 ? 'success' : 'brand'} />
                   {r.closed > 0 && <Caption>{formatNumber(r.closed)} מתוך {formatNumber(r.total)} מכוסים בהוצאה</Caption>}
                 </div>

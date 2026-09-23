@@ -28,7 +28,7 @@ describe('event hours (UX addendum 2026-09-22)', () => {
 
 describe('line-up span for the collapsed header', () => {
   const slot = (id: string, start: string, end: string): LineupSlot => ({
-    expenseId: id, artistId: null, displayName: id, realName: null, start, end, durationMinutes: 0, hourlyCost: null, overlapsWith: [],
+    expenseId: id, artistId: null, displayName: id, expenseName: id, stageName: null, realName: null, start, end, durationMinutes: 0, agreedAmount: 0, hourlyCost: null, overlapsWith: [],
   });
   it('runs from the first start to the latest end across midnight', () => {
     expect(lineupSpan([slot('a', '22:00', '23:30'), slot('b', '23:30', '01:00'), slot('c', '04:00', '07:00')])).toEqual({ start: '22:00', end: '07:00' });

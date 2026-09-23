@@ -36,13 +36,13 @@ function IncomeRow({ income, onOpen }: { income: IncomeVM; onOpen: () => void })
   return (
     <li className={styles.item}>
       <button type="button" className={styles.row} onClick={onOpen}>
-        <div className={styles.main}>
-          <p className={styles.title}><bdi>{income.name}</bdi></p>
-          <p className={styles.sub}>
+        <span className={styles.main}>
+          <span className={styles.title}><bdi>{income.name}</bdi></span>
+          <span className={styles.sub}>
             <span className="num">{formatNumber(income.quantity)}</span> × <Money value={income.unitPrice} />
-          </p>
+          </span>
           {income.isTicketIncome && <Badge tone="accent" icon={Ticket}>כרטיסים</Badge>}
-        </div>
+        </span>
         <Money value={income.totalAmount} className={styles.total} />
       </button>
     </li>
@@ -151,6 +151,7 @@ export function IncomeSection({ eventId, incomeTotal }: { eventId: string; incom
       title="הכנסות וכרטיסים"
       count={income.data?.length}
       icon={Banknote}
+      iconTone="teal"
       meta={incomeTotal !== null ? <>סה״כ <Money value={incomeTotal} /></> : undefined}
       action={<Button variant="secondary" compact icon={Plus} onClick={() => setEditing('new')}>הוסף הכנסה</Button>}
     >

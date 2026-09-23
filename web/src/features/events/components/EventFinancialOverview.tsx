@@ -1,7 +1,7 @@
 import { Banknote, CircleDollarSign, Scale, TrendingUp, Wallet } from 'lucide-react';
 import { Card, IconTile, KpiCard, Progress } from '@/design-system/Card';
 import { InlineMessage } from '@/design-system/feedback';
-import { Stack } from '@/design-system/layout';
+import { openSection, Stack } from '@/design-system/layout';
 import { Caption, Label, Money } from '@/design-system/Typography';
 import { formatMoney, formatNumber } from '@/lib/format';
 import type { EventSummaryVM } from '../data/eventsRepository';
@@ -15,7 +15,14 @@ import styles from './EventFinancialOverview.module.css';
 export function EventKpis({ event }: { event: EventSummaryVM }) {
   return (
     <div className={styles.kpis}>
-      <KpiCard label="הכנסות" icon={Banknote} tone="teal" value={formatMoney(event.incomeTotal)} />
+      <KpiCard
+        label="הכנסות"
+        icon={Banknote}
+        tone="teal"
+        value={formatMoney(event.incomeTotal)}
+        onClick={() => openSection('income')}
+        actionLabel="הכנסות — מעבר להכנסות ולכרטיסים"
+      />
       <KpiCard label="הוצאות מוסכמות" icon={Wallet} tone="neutral" value={formatMoney(event.agreedExpenses)} />
       <KpiCard label="יתרה" icon={Scale} tone={event.balance < 0 ? 'danger' : 'success'} value={formatMoney(event.balance)} negative={event.balance < 0} meta="הכנסות פחות הוצאות מוסכמות" />
       <KpiCard label="נותר לשלם" icon={CircleDollarSign} tone="brand" value={formatMoney(event.remainingToPay)} meta={<>שולם <Money value={event.paidTotal} /></>} />

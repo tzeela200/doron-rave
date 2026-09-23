@@ -27,6 +27,8 @@ export interface ExpenseVM {
   vendorName: string | null;
   artistId: string | null;
   artistName: string | null;
+  /** The stage name as stored, when there is one (the display name may fall back to another). */
+  artistStageName: string | null;
   artistRealName: string | null;
   plannedAmount: number;
   agreedAmount: number;
@@ -83,6 +85,7 @@ function toVM(r: Row, s: SummaryRow | undefined): ExpenseVM {
     vendorName: r.vendors?.name ?? null,
     artistId: r.artist_id,
     artistName: r.artists ? artistDisplayName(r.artists) : null,
+    artistStageName: r.artists?.stage_name?.trim() || null,
     artistRealName: r.artists ? artistSecondaryName(r.artists) : null,
     plannedAmount: r.planned_amount,
     agreedAmount: r.agreed_amount,

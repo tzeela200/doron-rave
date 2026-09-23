@@ -1,5 +1,5 @@
 .summary { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--card-padding) var(--card-padding) var(--space-1); }
-.percent { font-size: var(--font-size-metric); font-weight: var(--font-weight-bold); line-height: var(--line-height-h2); }
+.count { font-size: var(--font-size-section); font-weight: var(--font-weight-bold); color: var(--color-text-strong); line-height: var(--line-height-h3); }
 .list { display: flex; flex-direction: column; border-block-start: var(--border-default); }
 .item { border-block-end: var(--border-default); }
 .item:last-child { border-block-end: 0; }

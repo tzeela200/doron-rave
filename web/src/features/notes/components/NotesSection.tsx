@@ -134,6 +134,7 @@ export function NotesSection({ entityType, entityId, allowReminders = true }: { 
       title={title}
       count={notes.data?.length}
       icon={StickyNote}
+      iconTone="brand"
       meta={openReminders > 0 ? `${formatNumber(openReminders)} תזכורות פתוחות` : undefined}
       action={
         <Inline gap="0-5">
