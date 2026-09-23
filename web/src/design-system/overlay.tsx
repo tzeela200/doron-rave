@@ -125,3 +125,23 @@ export function AlertDialog({
     document.body,
   );
 }
+
+interface PosterDialogProps {
+  src: string;
+  alt: string;
+  onClose: () => void;
+}
+
+/** An image at full size over the page. Esc and the backdrop close it, like every other dialog. */
+export function PosterDialog({ src, alt, onClose }: PosterDialogProps) {
+  const ref = useModalDialog(true, onClose);
+  return createPortal(
+    <dialog ref={ref} className={cx(styles.dialog, styles.poster)} aria-label={alt}>
+      <div className={styles.posterFrame}>
+        <img src={src} alt={alt} className={styles.posterImage} />
+        <IconButton icon={X} label="סגירה" onClick={onClose} className={styles.posterClose} />
+      </div>
+    </dialog>,
+    document.body,
+  );
+}

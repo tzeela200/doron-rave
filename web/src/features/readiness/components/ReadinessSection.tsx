@@ -234,8 +234,8 @@ export function ReadinessSection({ eventId }: { eventId: string }) {
       iconTone="success"
       meta={r ? (r.defined ? `${formatNumber(r.completed)} מתוך ${formatNumber(r.total)} בוצעו` : 'לא הוגדרה רשימה') : undefined}
       action={r?.defined
-        ? <Button variant="ghost" compact icon={Pencil} onClick={() => setEditing(true)}>ערוך רשימה</Button>
-        : r ? <Button variant="secondary" compact icon={ListChecks} onClick={() => setEditing(true)}>הגדר רשימה</Button> : undefined}
+        ? <Button variant="primary" tone="success" compact icon={Pencil} onClick={() => setEditing(true)}>ערוך רשימה</Button>
+        : r ? <Button variant="primary" tone="success" compact icon={ListChecks} onClick={() => setEditing(true)}>הגדר רשימה</Button> : undefined}
     >
       {readiness.isLoading ? <LoadingBlock rows={1} height="96px" />
         : readiness.error ? <ErrorState onRetry={readiness.refetch} />

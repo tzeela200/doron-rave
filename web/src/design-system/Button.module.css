@@ -16,22 +16,30 @@
   max-inline-size: 100%;
 }
 .button > span { overflow: hidden; text-overflow: ellipsis; }
-.compact { min-block-size: var(--control-height-compact); padding-inline: var(--space-2); font-size: var(--font-size-body); }
+.compact { min-block-size: var(--control-height-compact); padding-inline: var(--space-2); font-size: var(--font-size-label); }
 .fullWidth { inline-size: 100%; }
 
-/* Primary: brand.700 background — white on #D97706 fails AA for 15–16px text (Book 02 §12.2) */
-.primary { background: var(--color-brand-hover); color: var(--color-surface-primary); }
+/* Primary: filled in its domain's strong step, so white text stays ≥4.9:1 (v4).
+   Without a tone it is the brand's own strong step, as before. */
+.primary { background: var(--tone-strong, var(--color-brand-strong)); color: var(--color-surface-primary); }
 .secondary { background: var(--color-surface-primary); color: var(--color-text-primary); border-color: var(--color-border-strong); }
 /* V3 §10: Tertiary = transparent + teal text (link actions); Danger Soft for archive */
 .ghost { background: transparent; color: var(--color-teal); }
 .danger { background: var(--color-danger-soft); color: var(--color-danger); border-color: var(--color-danger-border); }
 
+/* Tones: one class sets the filled colour and the matching text colour for ghost/secondary */
+.tone-brand { --tone-strong: var(--color-brand-strong); --tone-pressed: var(--color-brand-pressed); }
+.tone-teal { --tone-strong: var(--color-teal-strong); --tone-pressed: #115E59; }
+.tone-success { --tone-strong: var(--color-success-strong); --tone-pressed: #166534; }
+.tone-warning { --tone-strong: var(--color-warning-strong); --tone-pressed: #854D0E; }
+.tone-danger { --tone-strong: var(--color-danger-strong); --tone-pressed: #B91C1C; }
+
 @media (hover: hover) {
-  .primary:hover:not(:disabled) { background: var(--color-brand-pressed); }
+  .primary:hover:not(:disabled) { background: var(--tone-pressed, var(--color-brand-pressed)); }
   .secondary:hover:not(:disabled), .ghost:hover:not(:disabled) { background: var(--color-surface-secondary); }
   .danger:hover:not(:disabled) { border-color: var(--color-danger); }
 }
-.primary:active:not(:disabled) { background: var(--color-brand-pressed); }
+.primary:active:not(:disabled) { background: var(--tone-pressed, var(--color-brand-pressed)); }
 .secondary:active:not(:disabled), .ghost:active:not(:disabled) { background: var(--color-surface-secondary); }
 
 .button:active:not(:disabled), .iconButton:active:not(:disabled), .fab:active { transform: scale(var(--press-scale)); }

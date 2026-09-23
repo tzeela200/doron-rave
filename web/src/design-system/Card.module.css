@@ -43,6 +43,7 @@
 .kpiMeta {
   display: block;
   margin-block-start: auto;
+  min-block-size: 18px;
   padding-block-start: var(--space-1);
   border-block-start: 1px solid color-mix(in srgb, var(--color-border-default) 55%, transparent);
   font-size: var(--font-size-caption); color: var(--color-text-secondary); line-height: var(--line-height-label);

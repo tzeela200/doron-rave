@@ -66,3 +66,13 @@
 .alertError { color: var(--color-danger); font-size: var(--font-size-label); }
 .alertActions { display: flex; flex-direction: column; gap: var(--space-1); }
 @media (min-width: 600px) { .alertActions { flex-direction: row; } .alertActions > * { flex: 1; } }
+
+/* Poster at full size: the image decides the size, the frame only centres it */
+.poster { inline-size: min(92vw, 720px); margin: auto; }
+.posterFrame { position: relative; display: flex; }
+.posterImage { inline-size: 100%; block-size: auto; max-block-size: 88dvh; object-fit: contain; border-radius: var(--radius-card); box-shadow: var(--shadow-2); }
+.posterClose {
+  position: absolute; inset-block-start: var(--space-1); inset-inline-end: var(--space-1);
+  background: rgba(17, 24, 39, .55); color: #FFFFFF; border-radius: var(--radius-circle);
+}
+@media (hover: hover) { .posterClose:hover { background: rgba(17, 24, 39, .75); } }

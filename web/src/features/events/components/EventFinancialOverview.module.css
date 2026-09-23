@@ -9,9 +9,20 @@
 .row dd { margin: 0; font-weight: var(--font-weight-semibold); font-size: var(--font-size-body-lg); text-align: end; }
 .muted { color: var(--color-text-secondary); font-weight: var(--font-weight-medium); font-size: var(--font-size-body); }
 .progress { display: flex; flex-direction: column; gap: var(--space-1); margin-block-start: var(--space-1-5); }
-.basis { display: block; margin-block-start: var(--space-1-5); }
+.basis { display: block; margin-block-start: var(--space-1-5); font-size: var(--font-size-meta); }
 .forecastHead { display: flex; align-items: center; gap: var(--space-1); margin-block-end: var(--space-1); }
 .forecastValue, .forecastLoss { font-size: var(--font-size-metric); font-weight: var(--font-weight-bold); line-height: var(--line-height-h2); }
 .forecastLoss { color: var(--color-danger); }
 .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--card-gap); }
 @media (min-width: 1024px) { .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* One planning card: the numbers on one side, the forecast on the other, so a label and its
+   value never sit a screen apart (they stack on a phone). */
+.planning { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.planningRows { min-inline-size: 0; }
+.planningDivider { block-size: 1px; background: var(--color-border-default); }
+.forecast { display: flex; flex-direction: column; gap: var(--space-0-5); justify-content: center; }
+@media (min-width: 1024px) {
+  .planning { grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: var(--space-3); align-items: stretch; }
+  .planningDivider { block-size: auto; inline-size: 1px; }
+}

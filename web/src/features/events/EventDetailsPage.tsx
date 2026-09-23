@@ -5,7 +5,7 @@ import { LinkButton } from '@/design-system/Button';
 import { Badge, Card } from '@/design-system/Card';
 import { ErrorState, LoadingBlock } from '@/design-system/feedback';
 import { Icon } from '@/design-system/Icon';
-import { CollapsibleSections, Inline, PageContainer, Section } from '@/design-system/layout';
+import { CollapsibleSections, PageContainer, Section } from '@/design-system/layout';
 import { Body } from '@/design-system/Typography';
 import { eventDurationMinutes } from '@/domain/lineup';
 import { LineupSection } from '@/features/artists/components/LineupSection';
@@ -62,7 +62,7 @@ export function EventDetailsPage() {
       />
       <PageContainer>
         <Card variant="summary" className={styles.hero}>
-          <EventBanner imagePath={e.imagePath}>{readOnly ? <Badge>בארכיון</Badge> : days && <Badge tone={e.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
+          <EventBanner poster imagePath={e.imagePath} eventName={e.name}>{readOnly ? <Badge>בארכיון</Badge> : days && <Badge tone={e.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
           <dl className={styles.facts}>
             <div className={styles.fact}>
               <dt><Icon icon={CalendarDays} size="xs" />תאריך</dt>
@@ -70,7 +70,7 @@ export function EventDetailsPage() {
             </div>
             {(e.startTime || e.endTime) && (
               <div className={styles.fact}>
-                <dt><Icon icon={Clock} size="xs" />שעות</dt>
+                <dt><Icon icon={Clock} size="xs" />שעות המסיבה</dt>
                 <dd><EventHours start={e.startTime} end={e.endTime} /></dd>
               </div>
             )}
@@ -83,9 +83,9 @@ export function EventDetailsPage() {
           </dl>
           {e.generalNotes && <Body compact className={styles.notes}>{e.generalNotes}</Body>}
           {!readOnly && (
-            <Inline>
+            <div className={styles.heroActions}>
               <LinkButton to={`/events/${e.id}/clone`} variant="ghost" compact icon={Copy}>שכפל אירוע</LinkButton>
-            </Inline>
+            </div>
           )}
         </Card>
 
@@ -111,7 +111,8 @@ export function EventDetailsPage() {
 function EventHours({ start, end }: { start: string | null; end: string | null }) {
   if (start && end) {
     const duration = formatDuration(eventDurationMinutes(start, end));
-    return <><span className="num" dir="ltr">{start}–{end}</span>{duration && <span className={styles.sub}>{duration}</span>}</>;
+    // One line: the hours, and how long the party runs in brackets beside them.
+    return <span className={styles.hours}><span className="num" dir="ltr">{start}–{end}</span>{duration && <span className={styles.sub}> ({duration})</span>}</span>;
   }
   if (start) return <span>התחלה <span className="num">{start}</span></span>;
   return <span>סיום <span className="num">{end}</span></span>;

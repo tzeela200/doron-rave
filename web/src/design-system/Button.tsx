@@ -7,12 +7,17 @@ import { cx } from './Typography';
 import styles from './Button.module.css';
 
 // Four families only: primary, secondary, ghost, icon. Danger is a variant, not a family.
+// A primary button may carry its domain's colour (v4): the expenses action is orange, the income
+// action teal, and so on — the same colour that domain uses in its KPI and its section icon.
 // Loading keeps the footprint and blocks a second submit (Book 06 §4, §8).
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+/** The domain a button belongs to; it fills a primary button with that domain's strong step. */
+export type ButtonTone = 'brand' | 'teal' | 'success' | 'warning' | 'danger';
 
 interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: ButtonVariant;
+  tone?: ButtonTone;
   compact?: boolean;
   fullWidth?: boolean;
   loading?: boolean;
@@ -24,6 +29,7 @@ interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'chi
 
 export function Button({
   variant = 'secondary',
+  tone = 'brand',
   compact = false,
   fullWidth = false,
   loading = false,
@@ -40,7 +46,7 @@ export function Button({
     <button
       {...rest}
       type={type}
-      className={cx(styles.button, styles[variant], compact && styles.compact, fullWidth && styles.fullWidth, className)}
+      className={cx(styles.button, styles[variant], styles[`tone-${tone}`], compact && styles.compact, fullWidth && styles.fullWidth, className)}
       disabled={disabled}
       aria-disabled={loading || undefined}
       aria-busy={loading || undefined}
@@ -55,6 +61,7 @@ export function Button({
 interface LinkButtonProps {
   to: string;
   variant?: ButtonVariant;
+  tone?: ButtonTone;
   compact?: boolean;
   fullWidth?: boolean;
   icon?: LucideIcon;
@@ -64,9 +71,9 @@ interface LinkButtonProps {
 }
 
 /** Navigation that looks like a button (it is still a link). */
-export function LinkButton({ to, variant = 'secondary', compact, fullWidth, icon, children, className, state }: LinkButtonProps) {
+export function LinkButton({ to, variant = 'secondary', tone = 'brand', compact, fullWidth, icon, children, className, state }: LinkButtonProps) {
   return (
-    <Link to={to} state={state} className={cx(styles.button, styles[variant], compact && styles.compact, fullWidth && styles.fullWidth, className)}>
+    <Link to={to} state={state} className={cx(styles.button, styles[variant], styles[`tone-${tone}`], compact && styles.compact, fullWidth && styles.fullWidth, className)}>
       {icon && <Icon icon={icon} size="sm" />}
       <span>{children}</span>
     </Link>

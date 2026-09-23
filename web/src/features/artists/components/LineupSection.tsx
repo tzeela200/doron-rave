@@ -72,7 +72,7 @@ export function LineupSection({ eventId, artistsCount }: { eventId: string; arti
       icon={Mic2}
       iconTone="warning"
       meta={span ? <span className="num" dir="ltr">{span.start}–{span.end}</span> : `${formatNumber(artistsCount)} אמנים באירוע`}
-      action={<LinkButton to={`/events/${eventId}/expenses/new?artist=1`} variant="secondary" compact icon={Plus}>הוסף אמן</LinkButton>}
+      action={<LinkButton to={`/events/${eventId}/expenses/new?artist=1`} variant="primary" tone="warning" compact icon={Plus}>הוסף אמן</LinkButton>}
     >
       {expenses.isLoading ? <LoadingBlock rows={2} height="64px" />
         : expenses.error ? <ErrorState onRetry={() => void expenses.refetch()} retrying={expenses.isFetching} />

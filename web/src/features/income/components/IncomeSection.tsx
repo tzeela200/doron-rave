@@ -153,7 +153,7 @@ export function IncomeSection({ eventId, incomeTotal }: { eventId: string; incom
       icon={Banknote}
       iconTone="teal"
       meta={incomeTotal !== null ? <>סה״כ <Money value={incomeTotal} /></> : undefined}
-      action={<Button variant="secondary" compact icon={Plus} onClick={() => setEditing('new')}>הוסף הכנסה</Button>}
+      action={<Button variant="primary" tone="teal" compact icon={Plus} onClick={() => setEditing('new')}>הוסף הכנסה</Button>}
     >
       {income.isLoading ? <LoadingBlock rows={2} height="72px" />
         : income.error ? <ErrorState onRetry={() => void income.refetch()} retrying={income.isFetching} />

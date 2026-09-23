@@ -18,6 +18,12 @@
   --color-border-strong: #D1D5DB;
   --color-border-hover: #9CA3AF;
 
+  /* Domain colours (Design System v4, 2026-09-23). Every domain has three steps:
+     soft  — icon tile background
+     tint  — the section card's own background (soft over white; secondary text still ≥4.5:1)
+     strong— filled buttons and coloured text (white text ≥4.9:1 on every one)
+     A domain's colour is the same everywhere it appears: KPI, section, button. */
+
   /* Brand (amber) */
   --color-brand-primary: #D97706;
   --color-brand-hover: #B45309;
@@ -26,22 +32,34 @@
   --color-brand-100: #FFEDD5;
   --color-brand-200: #FED7AA;
   --color-brand-800: #92400E;
+  --color-brand-tint: #FFF9F1;
+  --color-brand-strong: #B45309;
 
   /* Teal (V3): information, counts, secondary navigation — never a substitute for Primary */
   --color-teal: #0F766E;
   --color-teal-soft: #E7F6F4;
+  --color-teal-tint: #F2FAF9;
+  --color-teal-strong: #0F766E;
 
   /* Semantic */
   --color-success: #16A34A;
   --color-success-soft: #ECFDF3;
+  --color-success-tint: #F5FEF8;
+  --color-success-strong: #15803D;
   --color-warning: #CA8A04;
   --color-warning-soft: #FFF8E1;
+  --color-warning-tint: #FFFBEE;
+  --color-warning-strong: #A16207;
   --color-danger: #DC2626;
   --color-danger-soft: #FEF2F2;
+  --color-danger-tint: #FEF8F8;
+  --color-danger-strong: #DC2626;
   --color-danger-border: #FECACA; /* V3 §10 Danger Soft button */
   /* V3 has no blue: "information" is teal. */
   --color-info: var(--color-teal);
   --color-info-soft: var(--color-teal-soft);
+  --color-neutral-tint: var(--color-surface-subtle);
+  --color-neutral-strong: var(--color-brand-strong);
 
   /* Text that must read as brand on white uses the brand hover step (#B45309, 5:1 on white).
      Status badges keep their text neutral and carry the semantic hue on icon + border, because
@@ -128,7 +146,7 @@
 
   /* Component geometry */
   --control-height: 48px;
-  --control-height-compact: 48px; /* phones: never below 48 (Review §19); 40 from tablet up */
+  --control-height-compact: 40px; /* smaller section actions (user, 2026-09-23); 36 from tablet up */
   --touch-target: 48px;
   --accordion-header-min: 60px;
   --kpi-min-height: 112px;
@@ -139,7 +157,8 @@
   --kpi-value-max: 34px;
   --badge-height: 28px;
   --progress-height: 8px;
-  --event-banner-height: 72px; /* V3 §8: 48–72px */
+  --event-banner-height: 72px;  /* the strip on an event card */
+  --event-poster-height: 136px; /* the poster strip on the event screen (160 from tablet up) */
   --event-hero-height: 136px;  /* Home focal card — Top Design Review §1 (120–140), user decision */
   --textarea-min: 120px;
   --bottom-nav-height: 64px;
@@ -173,7 +192,7 @@
 /* Tablet (Book 02 §3.3) */
 @media (min-width: 600px) {
   :root {
-    --control-height-compact: 40px;
+    --control-height-compact: 36px;
     --font-size-page: 28px;
     --page-gutter: var(--space-3);
     --section-gap: var(--space-5);

@@ -23,7 +23,7 @@ export function EventKpis({ event }: { event: EventSummaryVM }) {
         onClick={() => openSection('income')}
         actionLabel="הכנסות — מעבר להכנסות ולכרטיסים"
       />
-      <KpiCard label="הוצאות מוסכמות" icon={Wallet} tone="neutral" value={formatMoney(event.agreedExpenses)} />
+      <KpiCard label="הוצאות מוסכמות" icon={Wallet} tone="brand" value={formatMoney(event.agreedExpenses)} />
       <KpiCard label="יתרה" icon={Scale} tone={event.balance < 0 ? 'danger' : 'success'} value={formatMoney(event.balance)} negative={event.balance < 0} meta="הכנסות פחות הוצאות מוסכמות" />
       <KpiCard label="נותר לשלם" icon={CircleDollarSign} tone="brand" value={formatMoney(event.remainingToPay)} meta={<>שולם <Money value={event.paidTotal} /></>} />
     </div>
@@ -42,7 +42,8 @@ export function EventFinancialOverview({ event }: { event: EventSummaryVM }) {
   return (
     <Stack gap="1-5">
       <EventKpis event={event} />
-      <Card>
+      <Card className={styles.planning}>
+        <div className={styles.planningRows}>
         <dl className={styles.rows}>
           <div className={styles.row}>
             <dt>הוצאות מתוכננות</dt>
@@ -91,9 +92,11 @@ export function EventFinancialOverview({ event }: { event: EventSummaryVM }) {
           </Caption>
         )}
         {pnl.usesTiers && <Caption className={styles.basis}>החישוב לפי סבבי הכרטיסים, בסדר המכירה</Caption>}
-      </Card>
+        </div>
 
-      <Card>
+        <div className={styles.planningDivider}></div>
+
+        <div className={styles.forecast}>
         <div className={styles.forecastHead}>
           <IconTile icon={TrendingUp} tone={forecastLoss ? 'danger' : 'success'} />
           <Label as="h3">{pnl.forecastProfit === null ? 'רווח צפוי' : forecastLoss ? 'הפסד צפוי' : 'רווח צפוי'}</Label>
@@ -113,6 +116,7 @@ export function EventFinancialOverview({ event }: { event: EventSummaryVM }) {
             </Caption>
           </>
         )}
+        </div>
       </Card>
     </Stack>
   );

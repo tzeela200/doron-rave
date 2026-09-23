@@ -116,7 +116,7 @@ function CollapsibleSection({ title, count, icon, iconTone = 'neutral', action, 
 
   return (
     <section ref={ref} className={cx(styles.section, className)} id={id}>
-      <div className={cx(styles.collapseCard, open && styles.collapseCardOpen)}>
+      <div className={cx(styles.collapseCard, styles[`tint-${iconTone}`], open && styles.collapseCardOpen)}>
         <H className={styles.collapseHeading}>
           <button type="button" className={styles.collapseHeader} aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen((o) => !o)}>
             {icon && <IconTile icon={icon} tone={iconTone} />}
@@ -124,10 +124,10 @@ function CollapsibleSection({ title, count, icon, iconTone = 'neutral', action, 
               <span className={styles.collapseTitle}>{withCount(title, count)}</span>
               {meta && <span className={styles.collapseMeta}>{meta}</span>}
             </span>
-            <Icon icon={ChevronDown} className={cx(styles.chevron, open && styles.chevronOpen)} />
           </button>
         </H>
         {action && <div className={styles.collapseAction}>{action}</div>}
+        <Icon icon={ChevronDown} className={cx(styles.chevron, open && styles.chevronOpen)} />
       </div>
       <div id={bodyId} hidden={!open} className={styles.collapseBody}>
         {children}

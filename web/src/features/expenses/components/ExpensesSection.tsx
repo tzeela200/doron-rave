@@ -84,7 +84,7 @@ export function ExpensesSection({ eventId, totals }: { eventId: string; totals: 
       icon={Wallet}
       iconTone="brand"
       meta={<>סוכם <Money value={totals.agreed} /> · שולם <Money value={totals.paid} /> · נותר <Money value={totals.remaining} /></>}
-      action={<LinkButton to={`/events/${eventId}/expenses/new`} variant="primary" compact icon={Plus}>הוסף הוצאה</LinkButton>}
+      action={<LinkButton to={`/events/${eventId}/expenses/new`} variant="primary" tone="brand" compact icon={Plus}>הוסף הוצאה</LinkButton>}
     >
       {expenses.isLoading ? <LoadingBlock rows={3} height="88px" />
         : expenses.error ? <ErrorState onRetry={() => void expenses.refetch()} retrying={expenses.isFetching} />

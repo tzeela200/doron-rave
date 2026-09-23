@@ -1,3 +1,4 @@
+/* The strip is 160px on a wide screen, 136 on a phone; the poster itself opens full size. */
 .banner {
   position: relative;
   display: flex;
@@ -5,6 +6,10 @@
   justify-content: flex-end;
   block-size: var(--event-banner-height);
   padding: var(--space-1-5);
+  inline-size: 100%;
+  border: 0;
+  text-align: start;
+  color: inherit;
   background-color: var(--color-text-strong);
   isolation: isolate;
   overflow: hidden;
@@ -33,9 +38,6 @@
   background: linear-gradient(to top, rgba(0, 0, 0, .5), rgba(0, 0, 0, .12) 70%);
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08);
 }
-/* A real poster is shown whole, not cropped to a strip */
-.ownPoster::before { background-size: contain; background-repeat: no-repeat; background-color: var(--color-text-strong); }
-
 /* Hero: taller, content split top (badge) / bottom (title + cue), deeper gradient for contrast */
 .hero {
   block-size: var(--event-hero-height);
@@ -46,5 +48,21 @@
 }
 .hero > :first-child { align-self: flex-end; }
 .hero::after { background: linear-gradient(to top, rgba(0, 0, 0, .72), rgba(0, 0, 0, .18) 65%, rgba(0, 0, 0, .1)); }
+/* The event screen's strip: taller, with a quiet hint that the poster opens */
+.poster { block-size: var(--event-poster-height); align-items: flex-start; justify-content: space-between; cursor: pointer; }
+@media (min-width: 600px) { .poster { block-size: 160px; } }
+.openHint {
+  align-self: flex-end;
+  display: inline-flex; align-items: center;
+  min-block-size: 32px; padding-inline: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .35);
+  color: #FFFFFF;
+  font-size: var(--font-size-meta); font-weight: var(--font-weight-semibold);
+  transition: background-color var(--motion-accordion) var(--ease-out);
+}
+@media (hover: hover) { .poster:hover .openHint { background: rgba(255, 255, 255, .28); } }
+
 /* Full-bleed inside a padded card */
 .bleed { margin: calc(-1 * var(--card-padding)) calc(-1 * var(--card-padding)) 0; }

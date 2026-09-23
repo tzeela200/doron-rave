@@ -85,7 +85,8 @@ export function KpiCard({ label, value, empty, meta, icon, tone = 'brand', negat
         <span className={styles.kpiBody}>
           <Label as="span" className={styles.kpiLabel}>{label}</Label>
           <Metric as="span" empty={empty} negative={negative} className={styles.kpiValue}>{value}</Metric>
-          {meta && <span className={styles.kpiMeta}>{meta}</span>}
+          {/* The slot is always there: four cards, one baseline for the numbers. */}
+          <span className={styles.kpiMeta}>{meta}</span>
         </span>
       </span>
     </Tag>
