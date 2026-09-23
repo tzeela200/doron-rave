@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Archive, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { AppHeader } from '@/components/navigation/navigation';
@@ -74,6 +74,22 @@ function ExpenseForm({ eventId, eventName, expenseId, initial }: { eventId: stri
   const [categoryId, subcategoryId, artistId, vendorId, startTime, endTime, agreedAmount, includesExtras, coverageKeys, isPaid, manualStatus] =
     useWatch({ control, name: ['categoryId', 'subcategoryId', 'artistId', 'vendorId', 'startTime', 'endTime', 'agreedAmount', 'includesExtras', 'coverageKeys', 'isPaid', 'manualStatus'] });
   const { guard, allowNavigation } = useUnsavedChangesGuard(isDirty);
+
+  // Typing one amount fills the other, so the same number is not typed twice. A field that already
+  // holds a value, or that the user types into herself, stops following — nothing saved is
+  // overwritten silently. The two amounts stay separate numbers (Book 04 §3).
+  const plannedEdited = useRef(initial.plannedAmount.trim() !== '');
+  const agreedEdited = useRef(initial.agreedAmount.trim() !== '');
+  const planned = register('plannedAmount');
+  const agreed = register('agreedAmount');
+  const mirrorPlanned = (e: ChangeEvent<HTMLInputElement>) => {
+    plannedEdited.current = true;
+    if (!agreedEdited.current) setValue('agreedAmount', e.target.value, { shouldDirty: true });
+  };
+  const mirrorAgreed = (e: ChangeEvent<HTMLInputElement>) => {
+    agreedEdited.current = true;
+    if (!plannedEdited.current) setValue('plannedAmount', e.target.value, { shouldDirty: true });
+  };
 
   const category = tree?.categoryById.get(categoryId);
   const isArtist = !!category?.isArtists;
@@ -215,11 +231,23 @@ function ExpenseForm({ eventId, eventName, expenseId, initial }: { eventId: stri
 
             <FormSection title="סכומים">
               <div className={styles.pair}>
-                <Field label="סכום מתוכנן" error={errors.plannedAmount?.message} hint="ריק = לפי הסכום המוסכם">
-                  {(a) => <MoneyInput {...a} {...register('plannedAmount')} />}
+                <Field label="סכום מתוכנן" error={errors.plannedAmount?.message} hint="מה שתזיני מופיע גם בשדה השני, עד שתשני אותו">
+                  {(a) => (
+                    <MoneyInput
+                      {...a}
+                      {...planned}
+                      onChange={(e) => { void planned.onChange(e); mirrorPlanned(e); }}
+                    />
+                  )}
                 </Field>
                 <Field label="סכום מוסכם" error={errors.agreedAmount?.message}>
-                  {(a) => <MoneyInput {...a} {...register('agreedAmount')} />}
+                  {(a) => (
+                    <MoneyInput
+                      {...a}
+                      {...agreed}
+                      onChange={(e) => { void agreed.onChange(e); mirrorAgreed(e); }}
+                    />
+                  )}
                 </Field>
               </div>
               <div className={styles.field}>

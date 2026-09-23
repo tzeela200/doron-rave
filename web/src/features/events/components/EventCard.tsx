@@ -21,7 +21,7 @@ export function EventCard({ event, state, featured = false }: { event: EventSumm
 
   return (
     <InteractiveCard to={`/events/${event.id}`} state={state} className={cx(styles.card, featured && styles.featured)}>
-      <EventBanner hero={featured}>
+      <EventBanner hero={featured} imagePath={event.imagePath}>
         {days && <span className={styles.days}><Icon icon={Clock} size="xs" />{days}</span>}
         {featured && (
           <span className={styles.heroFoot}>

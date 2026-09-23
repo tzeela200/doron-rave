@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Archive, ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Archive, ArrowDown, ArrowUp, ImagePlus, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppHeader } from '@/components/navigation/navigation';
@@ -8,16 +8,16 @@ import { Button, IconButton } from '@/design-system/Button';
 import { Accordion, Card } from '@/design-system/Card';
 import { ErrorState, InlineMessage, LoadingBlock } from '@/design-system/feedback';
 import { DateInput, Field, Input, MoneyInput, NumberInput, Textarea, TimeInput } from '@/design-system/form';
-import { PageContainer, Stack } from '@/design-system/layout';
+import { Inline, PageContainer, Stack } from '@/design-system/layout';
 import { ConfirmArchive, FormSection, StickyFormActions } from '@/design-system/patterns';
 import { Caption } from '@/design-system/Typography';
-import { useEventSummary } from '@/features/queries';
+import { useEventImageUrl, useEventSummary } from '@/features/queries';
 import { useReturn } from '@/hooks/useReturn';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChanges';
 import { userMessage } from '@/lib/errors';
 import { refresh } from '@/lib/query/refresh';
 import { useAppMutation } from '@/lib/query/useAppMutation';
-import { archiveEvent, saveEvent } from './data/eventsRepository';
+import { archiveEvent, clearEventImage, saveEvent, uploadEventImage, EVENT_IMAGE_TYPES } from './data/eventsRepository';
 import { emptyEventForm, eventFormSchema, eventToForm, formToEventInput, type EventFormValues } from './eventForm';
 import styles from './EventFormPage.module.css';
 
@@ -37,10 +37,65 @@ export function EventFormPage() {
       </>
     );
   }
-  return <EventForm key={eventId ?? 'new'} eventId={eventId} initial={isEdit && existing.data ? eventToForm(existing.data) : emptyEventForm} />;
+  return (
+    <EventForm
+      key={eventId ?? 'new'}
+      eventId={eventId}
+      initial={isEdit && existing.data ? eventToForm(existing.data) : emptyEventForm}
+      existingImagePath={existing.data?.imagePath ?? null}
+    />
+  );
 }
 
-function EventForm({ eventId, initial }: { eventId?: string; initial: EventFormValues }) {
+/** Upload / replace / remove the event poster. Saved on its own the moment a file is chosen, so it
+ *  never depends on the rest of the form (Book 03 §15: the file lives in the private bucket). */
+function EventPosterField({ eventId, imagePath }: { eventId: string; imagePath: string | null }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const preview = useEventImageUrl(imagePath);
+
+  const upload = useAppMutation({
+    operation: 'uploadEventImage',
+    mutationFn: (file: File) => uploadEventImage(eventId, file),
+    refresh: () => refresh.event(eventId),
+    successMessage: 'תמונת האירוע נשמרה',
+  });
+  const clear = useAppMutation({
+    operation: 'clearEventImage',
+    mutationFn: () => clearEventImage(eventId),
+    refresh: () => refresh.event(eventId),
+    successMessage: 'תמונת האירוע הוסרה',
+  });
+  const busy = upload.isPending || clear.isPending;
+
+  return (
+    <FormSection title="תמונת האירוע" description="הפלייר של האירוע. מופיע בכרטיס האירוע ובראש מסך האירוע.">
+      {(upload.error ?? clear.error) && <InlineMessage tone="error" title={(upload.error ?? clear.error)!.userMessage} />}
+      {imagePath && preview.data && <img src={preview.data} alt="" className={styles.poster} />}
+      <input
+        ref={inputRef}
+        type="file"
+        accept={EVENT_IMAGE_TYPES.join(',')}
+        className="visually-hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (file) upload.mutate(file);
+        }}
+      />
+      <Inline gap="1">
+        <Button variant="secondary" icon={ImagePlus} loading={upload.isPending} loadingText="מעלה…" disabled={busy} onClick={() => inputRef.current?.click()}>
+          {imagePath ? 'החלף תמונה' : 'העלה תמונה'}
+        </Button>
+        {imagePath && (
+          <Button variant="ghost" icon={Trash2} disabled={busy} onClick={() => clear.mutate(undefined)}>הסר תמונה</Button>
+        )}
+      </Inline>
+      <Caption>JPG, PNG או WEBP, עד 8MB.</Caption>
+    </FormSection>
+  );
+}
+
+function EventForm({ eventId, initial, existingImagePath }: { eventId?: string; initial: EventFormValues; existingImagePath: string | null }) {
   const navigate = useNavigate();
   const goBack = useReturn();
   const isEdit = !!eventId;
@@ -119,6 +174,8 @@ function EventForm({ eventId, initial }: { eventId?: string; initial: EventFormV
                 {(a) => <Textarea {...a} {...register('generalNotes')} rows={3} />}
               </Field>
             </FormSection>
+
+            {isEdit && eventId && <EventPosterField eventId={eventId} imagePath={existingImagePath} />}
 
             <Accordion title="תחזית כרטיסים" meta={tierCount > 0 ? `${tierCount} סבבים` : 'אופציונלי'}>
               <Stack gap="3">

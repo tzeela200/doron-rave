@@ -38,7 +38,7 @@ export const categoryTree: CategoryTree = {
 
 function event(id: string, name: string, date: string, days: number, over: Partial<EventSummaryVM>, tiers: TicketTier[] = []): EventSummaryVM {
   const base = {
-    id, name, eventDate: date, startTime: null, endTime: null, location: 'מיקום לדוגמה', generalNotes: '', isArchived: false, isUpcoming: days >= 0, daysUntil: days,
+    id, name, eventDate: date, startTime: null, endTime: null, imagePath: null, location: 'מיקום לדוגמה', generalNotes: '', isArchived: false, isUpcoming: days >= 0, daysUntil: days,
     averageTicketPrice: null, expectedTicketCount: null, agreedExpenses: 0, plannedExpenses: 0, paidTotal: 0, remainingToPay: 0,
     incomeTotal: 0, ticketIncome: 0, nonTicketIncome: 0, ticketsSold: 0, balance: 0, expensesCount: 0, artistsCount: 0, tiers,
     ...over,

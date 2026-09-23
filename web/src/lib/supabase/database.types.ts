@@ -689,6 +689,7 @@ export type Database = {
           location: string | null
           name: string | null
           event_start_time: string | null
+          image_path: string | null
           non_ticket_income: number | null
           paid_total: number | null
           planned_expenses: number | null
@@ -749,6 +750,7 @@ export type Database = {
           location: string | null
           name: string | null
           event_start_time: string | null
+          image_path: string | null
           non_ticket_income: number | null
           paid_total: number | null
           planned_expenses: number | null
@@ -870,6 +872,10 @@ export type Database = {
       }
       set_required_item_status: {
         Args: { p_item_id: string; p_status: string }
+        Returns: undefined
+      }
+      set_event_image: {
+        Args: { p_event_id: string; p_path: string }
         Returns: undefined
       }
       set_event_required_items: {

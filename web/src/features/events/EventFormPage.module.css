@@ -9,3 +9,10 @@
   .when { grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); }
   .whenDate { grid-column: auto; }
 }
+.poster {
+  inline-size: 100%;
+  max-block-size: 320px;
+  object-fit: contain;
+  border-radius: var(--radius-card);
+  background: var(--color-text-strong);
+}

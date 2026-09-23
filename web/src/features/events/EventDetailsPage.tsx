@@ -62,7 +62,7 @@ export function EventDetailsPage() {
       />
       <PageContainer>
         <Card variant="summary" className={styles.hero}>
-          <EventBanner>{readOnly ? <Badge>בארכיון</Badge> : days && <Badge tone={e.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
+          <EventBanner imagePath={e.imagePath}>{readOnly ? <Badge>בארכיון</Badge> : days && <Badge tone={e.isUpcoming ? 'accent' : 'neutral'}>{days}</Badge>}</EventBanner>
           <dl className={styles.facts}>
             <div className={styles.fact}>
               <dt><Icon icon={CalendarDays} size="xs" />תאריך</dt>

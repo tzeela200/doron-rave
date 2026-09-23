@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router-dom';
 import { vi } from 'vitest';
 import { Button } from '@/design-system/Button';
 import { KpiCard } from '@/design-system/Card';
@@ -42,7 +42,7 @@ function wrap(ui: ReactNode, client = new QueryClient({ defaultOptions: { querie
 
 function eventVM(over: Partial<EventSummaryVM>): EventSummaryVM {
   const base = {
-    id: 'e1', name: 'אירוע בדיקה', eventDate: '2026-10-15', startTime: null, endTime: null, location: 'מקום', generalNotes: '', isArchived: false, isUpcoming: true,
+    id: 'e1', name: 'אירוע בדיקה', eventDate: '2026-10-15', startTime: null, endTime: null, imagePath: null, location: 'מקום', generalNotes: '', isArchived: false, isUpcoming: true,
     daysUntil: 23, averageTicketPrice: null, expectedTicketCount: null, agreedExpenses: 1000, plannedExpenses: 1000, paidTotal: 0,
     remainingToPay: 1000, incomeTotal: 0, ticketIncome: 0, nonTicketIncome: 0, ticketsSold: 0, balance: -1000, expensesCount: 1,
     artistsCount: 0, tiers: [], ...over,
@@ -189,5 +189,67 @@ describe('readiness checklist — marking work as done (user decision 2026-09-23
 
     await userEvent.click(screen.getByRole('button', { name: /שינוי מצב/ }));
     await waitFor(() => expect(setRequiredItemStatus).toHaveBeenLastCalledWith('r1', 'בטיפול'));
+  });
+});
+
+describe('expense amounts — typing one fills the other (user, 2026-09-23)', () => {
+  const seed = (client: QueryClient) => {
+    client.setQueryData(qk.categories, {
+      categories: [{ id: 'c1', name: 'ציוד טכני', isArchived: false, isVisible: true, sortOrder: 1, subcategories: [] }],
+      categoryById: new Map([['c1', { id: 'c1', name: 'ציוד טכני', isArtists: false }]]),
+      subcategoryById: new Map(),
+      artistsCategoryId: 'c-art',
+    });
+    client.setQueryData([...qk.vendors.list, false], []);
+    client.setQueryData([...qk.artists.list, false], []);
+    client.setQueryData(qk.paymentMethods, []);
+    client.setQueryData(qk.event.expenses('e1'), []);
+    client.setQueryData(qk.event.financial('e1'), eventVM({ id: 'e1', name: 'אירוע בדיקה' }));
+  };
+  const renderForm = async (client: QueryClient) => {
+    const { ExpenseFormPage } = await import('@/features/expenses/ExpenseFormPage');
+    // a data router: the form's unsaved-changes guard uses useBlocker
+    const router = createMemoryRouter(
+      [{ path: '/events/:eventId/expenses/new', element: <ExpenseFormPage /> }],
+      { initialEntries: ['/events/e1/expenses/new'] },
+    );
+    render(
+      <QueryClientProvider client={client}>
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </QueryClientProvider>,
+    );
+  };
+
+  it('planned fills agreed, and stops once agreed is typed into by hand', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    seed(client);
+    await renderForm(client);
+
+    const plannedField = await screen.findByRole('textbox', { name: /סכום מתוכנן/ });
+    const agreedField = screen.getByRole('textbox', { name: /סכום מוסכם/ });
+
+    await userEvent.type(plannedField, '1500');
+    expect(agreedField).toHaveValue('1500');
+
+    // she changes the agreed amount herself → the two are independent from here on
+    await userEvent.clear(agreedField);
+    await userEvent.type(agreedField, '1400');
+    expect(plannedField).toHaveValue('1500');
+
+    await userEvent.clear(plannedField);
+    await userEvent.type(plannedField, '1600');
+    expect(agreedField).toHaveValue('1400');
+  });
+
+  it('agreed fills planned when planned is still empty', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    seed(client);
+    await renderForm(client);
+
+    const agreedField = await screen.findByRole('textbox', { name: /סכום מוסכם/ });
+    await userEvent.type(agreedField, '800');
+    expect(screen.getByRole('textbox', { name: /סכום מתוכנן/ })).toHaveValue('800');
   });
 });

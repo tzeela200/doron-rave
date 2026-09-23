@@ -38,5 +38,10 @@ export type NoteType = (typeof NOTE_TYPE)[keyof typeof NOTE_TYPE];
 export const CLONE_MODE = { STRUCTURE: 'structure', ALL: 'all' } as const;
 export type CloneMode = (typeof CLONE_MODE)[keyof typeof CLONE_MODE];
 
+/** The one private bucket (Book 03 §15); posters live under event/{event_id}/… */
+export const EVENT_IMAGE_BUCKET = 'dorons-rave';
+/** Signed URL lifetime for a poster, in seconds. */
+export const EVENT_IMAGE_URL_TTL = 60 * 60;
+
 export const MAX_TICKET_TIERS = 20;
 export const COVERAGE_LABEL_MAX = 60;

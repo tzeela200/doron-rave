@@ -23,6 +23,7 @@ export const qk = {
     detail: (expenseId: string) => ['expense', expenseId, 'detail'] as const,
     payments: (expenseId: string) => ['expense', expenseId, 'payments'] as const,
   },
+  eventImage: (path: string) => ['event-image', path] as const,
   upcomingPayments: ['upcoming-payments'] as const,
   notes: (entityType: string, entityId: string) => ['notes', entityType, entityId] as const,
   artists: {

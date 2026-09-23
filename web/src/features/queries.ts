@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { buildReadiness, type ReadinessVM } from '@/domain/readiness';
-import type { NoteEntityType } from '@/domain/constants';
+import { EVENT_IMAGE_URL_TTL, type NoteEntityType } from '@/domain/constants';
 import { qk } from '@/lib/query/keys';
 import { getArtist, listArtists } from './artists/data/artistsRepository';
 import { getCategoryTree, getCategoryUsage } from './categories/data/categoriesRepository';
-import { getEventSummary, listEvents, listEventsByIds, type EventsFilter } from './events/data/eventsRepository';
+import { eventImageUrl, getEventSummary, listEvents, listEventsByIds, type EventsFilter } from './events/data/eventsRepository';
 import { getExpense, listEventExpenses, listExpensePayments, listUpcomingPayments } from './expenses/data/expensesRepository';
 import { getHomeSummary } from './home/data/homeRepository';
 import { listEventIncome } from './income/data/incomeRepository';
@@ -43,6 +43,15 @@ export const useEventsByIds = (ids: readonly string[]) =>
   useQuery({ queryKey: qk.events.compare(ids), queryFn: () => listEventsByIds(ids), enabled: ids.length > 0 });
 export const useEventSummary = (eventId: string) =>
   useQuery({ queryKey: qk.event.financial(eventId), queryFn: () => getEventSummary(eventId) });
+/** Signed URL for an event poster; refreshed well before the signature expires. */
+export const useEventImageUrl = (path: string | null) =>
+  useQuery({
+    queryKey: qk.eventImage(path ?? ''),
+    queryFn: () => eventImageUrl(path ?? ''),
+    enabled: !!path,
+    staleTime: (EVENT_IMAGE_URL_TTL - 300) * 1000,
+    gcTime: EVENT_IMAGE_URL_TTL * 1000,
+  });
 export const useEventExpenses = (eventId: string) =>
   useQuery({ queryKey: qk.event.expenses(eventId), queryFn: () => listEventExpenses(eventId) });
 export const useExpense = (expenseId: string | undefined) =>

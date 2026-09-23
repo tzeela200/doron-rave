@@ -1,5 +1,6 @@
 import { computeEventPnl, type Pnl, type TicketTier } from '@/domain/pnl';
 import { AppError, MESSAGES, toAppError } from '@/lib/errors';
+import { EVENT_IMAGE_BUCKET, EVENT_IMAGE_URL_TTL } from '@/domain/constants';
 import { supabase, type Json } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 
@@ -17,6 +18,8 @@ export interface EventSummaryVM {
   /** HH:MM or null (addendum 2026-09-22). End earlier than start = crosses midnight. */
   startTime: string | null;
   endTime: string | null;
+  /** Poster inside the private bucket; read through a signed URL. */
+  imagePath: string | null;
   location: string;
   generalNotes: string;
   isArchived: boolean;
@@ -40,7 +43,7 @@ export interface EventSummaryVM {
 }
 
 const OVERVIEW_COLUMNS =
-  'id, name, event_date, location, general_notes, is_archived, is_upcoming, days_until, average_ticket_price, expected_ticket_count, agreed_expenses, planned_expenses, paid_total, remaining_to_pay, income_total, ticket_income, non_ticket_income, tickets_sold, balance, expenses_count, artists_count, event_start_time, event_end_time';
+  'id, name, event_date, location, general_notes, is_archived, is_upcoming, days_until, average_ticket_price, expected_ticket_count, agreed_expenses, planned_expenses, paid_total, remaining_to_pay, income_total, ticket_income, non_ticket_income, tickets_sold, balance, expenses_count, artists_count, event_start_time, event_end_time, image_path';
 
 function toSummary(r: OverviewRow, tiers: TicketTier[]): EventSummaryVM {
   if (!r.id || !r.name || !r.event_date) throw new AppError('DB', 'overview_shape', MESSAGES.load, 'toSummary');
@@ -51,6 +54,7 @@ function toSummary(r: OverviewRow, tiers: TicketTier[]): EventSummaryVM {
     eventDate: r.event_date,
     startTime: r.event_start_time ? r.event_start_time.slice(0, 5) : null,
     endTime: r.event_end_time ? r.event_end_time.slice(0, 5) : null,
+    imagePath: r.image_path ?? null,
     location: r.location ?? '',
     generalNotes: r.general_notes ?? '',
     isArchived: !!r.is_archived,
@@ -168,6 +172,40 @@ export async function saveEvent(input: EventInput): Promise<string> {
   const { data, error } = await supabase.rpc('save_event', { p: payload as Json, p_tiers: tiers });
   if (error) throw toAppError(error, 'saveEvent');
   return data;
+}
+
+/** Accepted poster formats and the ceiling we let through from a phone. */
+export const EVENT_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+export const EVENT_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
+
+/** Uploads the poster into event/{eventId}/… and points the event at it, in that order. */
+export async function uploadEventImage(eventId: string, file: File): Promise<string> {
+  if (!EVENT_IMAGE_TYPES.includes(file.type as (typeof EVENT_IMAGE_TYPES)[number])) {
+    throw new AppError('DOMAIN', 'event_image_type', 'אפשר להעלות תמונה בפורמט JPG, PNG או WEBP.', 'uploadEventImage');
+  }
+  if (file.size > EVENT_IMAGE_MAX_BYTES) {
+    throw new AppError('DOMAIN', 'event_image_size', 'התמונה גדולה מדי. עד 8MB.', 'uploadEventImage');
+  }
+  const extension = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : 'jpg';
+  const path = `event/${eventId}/${crypto.randomUUID()}.${extension || 'jpg'}`;
+  const upload = await supabase.storage.from(EVENT_IMAGE_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
+  if (upload.error) throw toAppError(upload.error, 'uploadEventImage', 'לא הצלחנו להעלות את התמונה. נסה שוב.');
+  const { error } = await supabase.rpc('set_event_image', { p_event_id: eventId, p_path: path });
+  if (error) throw toAppError(error, 'uploadEventImage');
+  return path;
+}
+
+/** Removes the poster from the event. The file itself stays in storage (Book 03 §15). */
+export async function clearEventImage(eventId: string): Promise<void> {
+  const { error } = await supabase.rpc('set_event_image', { p_event_id: eventId, p_path: '' });
+  if (error) throw toAppError(error, 'clearEventImage');
+}
+
+/** A short-lived signed URL for a poster in the private bucket. */
+export async function eventImageUrl(path: string): Promise<string | null> {
+  const { data, error } = await supabase.storage.from(EVENT_IMAGE_BUCKET).createSignedUrl(path, EVENT_IMAGE_URL_TTL);
+  if (error) throw toAppError(error, 'eventImageUrl', MESSAGES.load);
+  return data?.signedUrl ?? null;
 }
 
 export async function archiveEvent(id: string): Promise<void> {
