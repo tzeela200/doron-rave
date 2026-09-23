@@ -1,11 +1,11 @@
-import { CheckCircle2, ChevronRight, Circle, CircleDashed, ListChecks, Pencil } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Circle, CircleDashed, ListChecks, Pencil, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ReadinessBadge } from '@/components/StatusBadges';
+import { ReadinessBadge, ReadinessProgressBadge } from '@/components/StatusBadges';
 import { Button } from '@/design-system/Button';
 import { Card, Progress } from '@/design-system/Card';
 import { EmptyState, ErrorState, InlineMessage, LoadingBlock } from '@/design-system/feedback';
-import { Checkbox } from '@/design-system/form';
+import { Checkbox, Field, Input } from '@/design-system/form';
 import { Icon } from '@/design-system/Icon';
 import { Section, Stack } from '@/design-system/layout';
 import { BottomSheet } from '@/design-system/overlay';
@@ -17,18 +17,65 @@ import { useSheetCloseGuard } from '@/hooks/useUnsavedChanges';
 import { formatNumber } from '@/lib/format';
 import { refresh } from '@/lib/query/refresh';
 import { useAppMutation } from '@/lib/query/useAppMutation';
-import { setRequiredItems, setRequiredItemStatus } from '../data/readinessRepository';
+import { setRequiredItems, setRequiredItemOwner, setRequiredItemStatus } from '../data/readinessRepository';
 import styles from './ReadinessSection.module.css';
 
 // Production readiness (Book 05 §8, Book 06 §37, ADR-032/033). The list is the user's choice from
 // her own categories. Each item carries the progress she marks by hand (לא התחיל / בטיפול / בוצע),
-// which is what the percentage counts, plus the state derived from expenses and coverage, shown
-// beside it. Nothing here changes money.
+// which is what the percentage counts. An item with an expense behind it keeps the coverage badge
+// it always had (מכוסה / כלול); an item without one shows a single status — חסר → בטיפול → בוצע.
+// Each item can also carry who is responsible. Nothing here changes money.
+
+const OWNER_QUICK_PICKS = ['דורון', 'צאלה'] as const;
+
+/** Who is responsible. Quick picks plus free text, so the list of people is never hard-coded. */
+function OwnerSheet({ item, eventId, onClose }: { item: ReadinessItemVM; eventId: string; onClose: () => void }) {
+  const [value, setValue] = useState(item.owner);
+  const save = useAppMutation({
+    operation: 'setRequiredItemOwner',
+    mutationFn: (owner: string) => setRequiredItemOwner(item.itemId, owner),
+    refresh: () => refresh.requiredItems(eventId),
+    onSuccess: onClose,
+  });
+  return (
+    <BottomSheet
+      open
+      title="באחריות מי?"
+      description={item.label}
+      onRequestClose={onClose}
+      footer={
+        <>
+          <Button variant="primary" loading={save.isPending} loadingText="שומר…" onClick={() => save.mutate(value.trim())}>שמור</Button>
+          <Button variant="ghost" onClick={onClose} disabled={save.isPending}>ביטול</Button>
+        </>
+      }
+    >
+      {save.error && <InlineMessage tone="error" title={save.error.userMessage} />}
+      <div className={styles.owners}>
+        {OWNER_QUICK_PICKS.map((name) => (
+          <button
+            key={name}
+            type="button"
+            className={cx(styles.ownerPick, value === name && styles.ownerPickOn)}
+            aria-pressed={value === name}
+            onClick={() => setValue(value === name ? '' : name)}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+      <Field label="שם אחר">
+        {(a11y) => <Input {...a11y} value={value} onChange={(e) => setValue(e.target.value)} placeholder="ללא אחראי" autoComplete="off" />}
+      </Field>
+    </BottomSheet>
+  );
+}
 
 function ReadinessItemRow({ item, eventId }: { item: ReadinessItemVM; eventId: string }) {
   const done = item.completion === READINESS_COMPLETION.DONE;
   const inProgress = item.completion === READINESS_COMPLETION.IN_PROGRESS;
   const name = item.label || 'רכיב שהועבר לארכיון';
+  const [owning, setOwning] = useState(false);
 
   const setStatus = useAppMutation({
     operation: 'setRequiredItemStatus',
@@ -36,7 +83,10 @@ function ReadinessItemRow({ item, eventId }: { item: ReadinessItemVM; eventId: s
     refresh: () => refresh.requiredItems(eventId),
   });
   const toggleDone = () => setStatus.mutate(done ? READINESS_COMPLETION.NOT_STARTED : READINESS_COMPLETION.DONE);
-  const toggleInProgress = () => setStatus.mutate(inProgress ? READINESS_COMPLETION.NOT_STARTED : READINESS_COMPLETION.IN_PROGRESS);
+  // חסר → בטיפול → בוצע → חסר
+  const nextStatus = () => setStatus.mutate(
+    done ? READINESS_COMPLETION.NOT_STARTED : inProgress ? READINESS_COMPLETION.DONE : READINESS_COMPLETION.IN_PROGRESS,
+  );
 
   const label = (
     <span className={styles.label}>
@@ -69,21 +119,35 @@ function ReadinessItemRow({ item, eventId }: { item: ReadinessItemVM; eventId: s
         )}
 
         <span className={styles.states}>
-          {!done && (
+          <button
+            type="button"
+            className={styles.ownerButton}
+            aria-label={item.owner ? `אחראי: ${item.owner}. שינוי אחראי ל${name}` : `קביעת אחראי ל${name}`}
+            onClick={() => setOwning(true)}
+          >
+            <Icon icon={UserRound} size="xs" />
+            {item.owner || 'אחריות'}
+          </button>
+
+          {item.linkedExpenseId ? (
+            // The item has an expense: its coverage keeps the meaning it always had
+            <ReadinessBadge state={item.state} includedBy={item.includedByLabel} />
+          ) : (
+            // No expense behind it: one status only, and the badge is the control
             <button
               type="button"
-              className={cx(styles.progressChip, inProgress && styles.progressChipOn)}
-              aria-pressed={inProgress}
+              className={styles.statusButton}
+              aria-label={`מצב: ${item.completion}. שינוי מצב ל${name}`}
               disabled={setStatus.isPending}
-              onClick={toggleInProgress}
+              onClick={nextStatus}
             >
-              בטיפול
+              <ReadinessProgressBadge completion={item.completion} />
             </button>
           )}
-          <ReadinessBadge state={item.state} includedBy={item.includedByLabel} />
         </span>
       </div>
       {setStatus.error && <p className={styles.error} role="alert">{setStatus.error.userMessage}</p>}
+      {owning && <OwnerSheet item={item} eventId={eventId} onClose={() => setOwning(false)} />}
     </li>
   );
 }

@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, Circle, CircleDashed, Clock, Handshake, Package, PieChart } from 'lucide-react';
 import { Badge } from '@/design-system/Card';
 import { OVERDUE_LABEL, type ExpenseStatus, type PaymentStatus } from '@/domain/constants';
+import { READINESS_COMPLETION, type ReadinessCompletion } from '@/domain/constants';
 import type { ReadinessState } from '@/domain/readiness';
 
 // Status → badge. Only statuses that exist in the model (Book 06 §12, Book 11 §7–§9).
@@ -33,6 +34,18 @@ export function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
 /** Derived display badge; never a payment_status (Book 04 §2.1). */
 export function OverdueBadge() {
   return <Badge tone="warning" icon={AlertTriangle}>{OVERDUE_LABEL}</Badge>;
+}
+
+/** An item with no expense behind it has ONE status: חסר → בטיפול → בוצע. */
+export function ReadinessProgressBadge({ completion }: { completion: ReadinessCompletion }) {
+  switch (completion) {
+    case READINESS_COMPLETION.DONE:
+      return <Badge tone="success" icon={CheckCircle2}>בוצע</Badge>;
+    case READINESS_COMPLETION.IN_PROGRESS:
+      return <Badge tone="accent" icon={CircleDashed}>בטיפול</Badge>;
+    default:
+      return <Badge tone="warning" icon={AlertTriangle}>חסר</Badge>;
+  }
 }
 
 export function ReadinessBadge({ state, includedBy }: { state: ReadinessState; includedBy?: string | null }) {

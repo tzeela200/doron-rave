@@ -167,4 +167,25 @@ describe('readiness checklist — marking work as done (user decision 2026-09-23
     await userEvent.click(screen.getByRole('button', { name: /סמן כבוצע: הגברה/ }));
     await waitFor(() => expect(setRequiredItemStatus).toHaveBeenCalledWith('r1', 'בוצע'));
   });
+
+  it('an item with no expense shows one status and the badge cycles חסר → בטיפול → בוצע', async () => {
+    const { ReadinessSection } = await import('@/features/readiness/components/ReadinessSection');
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    client.setQueryData(qk.event.readiness('e1'), [{ id: 'r1', categoryId: null, subcategoryId: 's1' }]);
+    client.setQueryData(qk.event.expenses('e1'), []);
+    client.setQueryData(qk.categories, {
+      categories: [], categoryById: new Map(),
+      subcategoryById: new Map([['s1', { id: 's1', name: 'הגברה' }]]),
+      artistsCategoryId: 'c-art',
+    });
+    setRequiredItemStatus.mockResolvedValue(undefined);
+
+    wrap(<ReadinessSection eventId="e1" />, client);
+    // no expense behind it → the only status shown is the manual one
+    expect(await screen.findByText('חסר')).toBeInTheDocument();
+    expect(screen.queryByText('מכוסה')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /שינוי מצב/ }));
+    await waitFor(() => expect(setRequiredItemStatus).toHaveBeenLastCalledWith('r1', 'בטיפול'));
+  });
 });

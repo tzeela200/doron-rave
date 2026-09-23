@@ -32,17 +32,32 @@
 .check:disabled { opacity: .5; }
 
 .states { flex: 0 1 auto; margin-inline-start: auto; display: flex; align-items: center; gap: var(--space-0-5); flex-wrap: wrap; justify-content: flex-end; }
-.progressChip {
+/* Owner: quiet until it carries a name */
+.ownerButton {
   position: relative;
-  min-block-size: var(--badge-height); padding-inline: var(--space-1-5);
-  border-radius: var(--radius-pill); border: 1px solid var(--color-border-default);
-  background: var(--color-surface-primary); color: var(--color-text-secondary);
+  display: inline-flex; align-items: center; gap: var(--space-0-5);
+  min-block-size: var(--badge-height); padding-inline: var(--space-1);
+  border-radius: var(--radius-pill); border: 1px dashed var(--color-border-strong);
+  background: transparent; color: var(--color-text-secondary);
   font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold);
-  transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
 }
-.progressChip::after { content: ''; position: absolute; inset: -10px; } /* 48px tap area around a 28px pill */
-.progressChipOn { background: var(--color-warning-soft); border-color: var(--color-warning); color: var(--color-text-strong); }
-.progressChip:disabled { opacity: .5; }
+.ownerButton::after { content: ''; position: absolute; inset: -10px; } /* 48px tap area */
+@media (hover: hover) { .ownerButton:hover { border-style: solid; color: var(--color-text-primary); } }
+
+/* The status badge itself is the control on items with no expense */
+.statusButton { position: relative; border: 0; background: transparent; padding: 0; }
+.statusButton::after { content: ''; position: absolute; inset: -10px; }
+.statusButton:disabled { opacity: .5; }
+
+/* Owner sheet */
+.owners { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.ownerPick {
+  min-block-size: var(--control-height); padding-inline: var(--space-3);
+  border-radius: var(--radius-pill); border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-primary); color: var(--color-text-primary);
+  font-size: var(--font-size-body); font-weight: var(--font-weight-semibold);
+}
+.ownerPickOn { background: var(--color-brand-soft); border-color: var(--color-brand-primary); color: var(--color-brand-text); }
 
 /* Done: quieter, never hidden */
 .itemDone { background: var(--color-surface-subtle); }

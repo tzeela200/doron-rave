@@ -131,6 +131,7 @@ export type Database = {
           created_at: string
           completed_at: string | null
           completion_status: string
+          owner_name: string
           event_id: string
           id: string
           subcategory_id: string | null
@@ -140,6 +141,7 @@ export type Database = {
           created_at?: string
           completed_at?: string | null
           completion_status?: string
+          owner_name?: string
           event_id: string
           id?: string
           subcategory_id?: string | null
@@ -149,6 +151,7 @@ export type Database = {
           created_at?: string
           completed_at?: string | null
           completion_status?: string
+          owner_name?: string
           event_id?: string
           id?: string
           subcategory_id?: string | null
@@ -861,6 +864,10 @@ export type Database = {
       save_event: { Args: { p: Json; p_tiers?: Json }; Returns: string }
       save_income: { Args: { p: Json }; Returns: string }
       save_payment: { Args: { p: Json }; Returns: string }
+      set_required_item_owner: {
+        Args: { p_item_id: string; p_owner: string }
+        Returns: undefined
+      }
       set_required_item_status: {
         Args: { p_item_id: string; p_status: string }
         Returns: undefined

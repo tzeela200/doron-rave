@@ -101,8 +101,8 @@ export const income: IncomeVM[] = [
 ];
 
 export const requiredItems: RequiredItem[] = [
-  { id: 'r1', categoryId: null, subcategoryId: 's-sound', completion: 'בוצע' },
-  { id: 'r2', categoryId: null, subcategoryId: 's-toilets', completion: 'בטיפול' },
+  { id: 'r1', categoryId: null, subcategoryId: 's-sound', completion: 'בוצע', owner: 'דורון' },
+  { id: 'r2', categoryId: null, subcategoryId: 's-toilets', completion: 'בטיפול', owner: 'צאלה' },
   { id: 'r3', categoryId: null, subcategoryId: 's-light' },
   { id: 'r4', categoryId: 'c-art', subcategoryId: null, completion: 'בוצע' },
 ];

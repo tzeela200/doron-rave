@@ -44,6 +44,8 @@ export interface RequiredItem {
   subcategoryId: string | null;
   /** Older rows have no status; they read as "not started" (backwards compatible). */
   completion?: ReadinessCompletion;
+  /** Free text: who is responsible. '' = nobody assigned. */
+  owner?: string;
 }
 
 export interface ReadinessItemVM {
@@ -56,6 +58,7 @@ export interface ReadinessItemVM {
   includedByLabel: string | null;
   linkedExpenseId: string | null;
   completion: ReadinessCompletion;
+  owner: string;
 }
 
 export interface ReadinessVM {
@@ -145,6 +148,7 @@ export function buildReadiness(
       includedByLabel: hit?.state === 'included' ? hit.expenseName : null,
       linkedExpenseId: hit?.expenseId ?? null,
       completion: r.completion ?? READINESS_COMPLETION.NOT_STARTED,
+      owner: r.owner ?? '',
     };
   });
 
