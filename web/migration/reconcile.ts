@@ -74,7 +74,9 @@ export function reconcile(runsDir: string) {
     add(label, 'readiness defined', s.readiness.configured, r.defined, s.readiness.configured === r.defined);
     if (r.defined) {
       add(label, 'readiness closed/total', `${s.readiness.done}/${s.readiness.total}`, `${r.closed}/${r.total}`, s.readiness.done === r.closed && s.readiness.total === r.total);
-      add(label, 'readiness percent', s.readiness.percent, r.percent, s.readiness.percent === r.percent);
+      // The legacy percentage is expense coverage; ours is now hand-marked progress, so the
+    // comparable number here is coveragePercent (Book 04 §9 + user decision 2026-09-23).
+    add(label, 'readiness coverage percent', s.readiness.percent, r.coveragePercent, s.readiness.percent === r.coveragePercent);
     }
 
     const lineup = buildLineup(t.expenses.map((e: Json) => ({ expenseId: e.id, artistId: e.artistId, displayName: e.name, realName: null, start: e.start, end: e.end, agreedAmount: Number(e.agreedAmount) })));

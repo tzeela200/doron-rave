@@ -101,10 +101,10 @@ export const income: IncomeVM[] = [
 ];
 
 export const requiredItems: RequiredItem[] = [
-  { id: 'r1', categoryId: null, subcategoryId: 's-sound' },
-  { id: 'r2', categoryId: null, subcategoryId: 's-toilets' },
+  { id: 'r1', categoryId: null, subcategoryId: 's-sound', completion: 'בוצע' },
+  { id: 'r2', categoryId: null, subcategoryId: 's-toilets', completion: 'בטיפול' },
   { id: 'r3', categoryId: null, subcategoryId: 's-light' },
-  { id: 'r4', categoryId: 'c-art', subcategoryId: null },
+  { id: 'r4', categoryId: 'c-art', subcategoryId: null, completion: 'בוצע' },
 ];
 
 export const notes: NoteVM[] = [

@@ -129,6 +129,8 @@ export type Database = {
         Row: {
           category_id: string | null
           created_at: string
+          completed_at: string | null
+          completion_status: string
           event_id: string
           id: string
           subcategory_id: string | null
@@ -136,6 +138,8 @@ export type Database = {
         Insert: {
           category_id?: string | null
           created_at?: string
+          completed_at?: string | null
+          completion_status?: string
           event_id: string
           id?: string
           subcategory_id?: string | null
@@ -143,6 +147,8 @@ export type Database = {
         Update: {
           category_id?: string | null
           created_at?: string
+          completed_at?: string | null
+          completion_status?: string
           event_id?: string
           id?: string
           subcategory_id?: string | null
@@ -855,6 +861,10 @@ export type Database = {
       save_event: { Args: { p: Json; p_tiers?: Json }; Returns: string }
       save_income: { Args: { p: Json }; Returns: string }
       save_payment: { Args: { p: Json }; Returns: string }
+      set_required_item_status: {
+        Args: { p_item_id: string; p_status: string }
+        Returns: undefined
+      }
       set_event_required_items: {
         Args: { p_event_id: string; p_items: Json }
         Returns: undefined

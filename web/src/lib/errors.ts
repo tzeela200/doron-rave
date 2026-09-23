@@ -34,6 +34,8 @@ const DOMAIN_MESSAGES: Record<string, string> = {
   event_name_required: 'יש להזין שם אירוע',
   event_date_required: 'יש להזין תאריך אירוע',
   category_required: 'יש לבחור קטגוריה',
+  readiness_status_invalid: 'סטטוס ביצוע לא תקין',
+  required_item_not_found: 'הרכיב לא נמצא',
   amount_invalid: 'יש להזין סכום תקין',
   payment_amount_invalid: 'יש להזין סכום תקין',
   performance_times_equal: 'שעת ההתחלה ושעת הסיום לא יכולות להיות זהות',

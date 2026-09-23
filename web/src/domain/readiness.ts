@@ -1,7 +1,14 @@
-import { EXPENSE_MANUAL_STATUS } from './constants';
+import { EXPENSE_MANUAL_STATUS, READINESS_COMPLETION, type ReadinessCompletion } from './constants';
 
 // Production readiness (Book 04 §9, §10; CALCULATIONS.md §5; legacy buildOperationalCoverage_).
 // The list is the user's own `event_required_items`. Nothing here is money.
+//
+// Two independent facts per item (user decision 2026-09-23):
+//   completion — what the producer marked by hand: לא התחיל / בטיפול / בוצע. THIS drives the
+//                percentage, because most of the work has no expense behind it.
+//   state      — derived from expenses and coverage exactly as before (covered / included /
+//                in_progress / missing). Shown next to the item; never changes money and no
+//                longer changes the percentage.
 //
 // Matching is by id key, never by name:
 //   an expense contributes to  sub:<subcategory_id>  when it has a subcategory, else cat:<category_id>
@@ -35,6 +42,8 @@ export interface RequiredItem {
   id: string;
   categoryId: string | null;
   subcategoryId: string | null;
+  /** Older rows have no status; they read as "not started" (backwards compatible). */
+  completion?: ReadinessCompletion;
 }
 
 export interface ReadinessItemVM {
@@ -46,16 +55,24 @@ export interface ReadinessItemVM {
   /** Name of the expense that includes this item ("כלול ב־X"), when state = included. */
   includedByLabel: string | null;
   linkedExpenseId: string | null;
+  completion: ReadinessCompletion;
 }
 
 export interface ReadinessVM {
   /** false = the user has not chosen a list → no percentage at all, not 0% (ADR-033). */
   defined: boolean;
   items: ReadinessItemVM[];
+  /** Marked בוצע by hand — the numerator of `percent`. */
+  completed: number;
+  inProgress: number;
+  /** Derived from money: items covered by an expense or included in one (unchanged meaning). */
   closed: number;
   missing: number;
   total: number;
+  /** completed / total (ADR-033: null when the user has not chosen a list). */
   percent: number | null;
+  /** closed / total — the expense coverage, kept for reports and migration reconciliation. */
+  coveragePercent: number | null;
 }
 
 export interface ReadinessLabels {
@@ -127,17 +144,22 @@ export function buildReadiness(
       state: hit?.state ?? 'missing',
       includedByLabel: hit?.state === 'included' ? hit.expenseName : null,
       linkedExpenseId: hit?.expenseId ?? null,
+      completion: r.completion ?? READINESS_COMPLETION.NOT_STARTED,
     };
   });
 
   const closed = items.filter((i) => i.state === 'covered' || i.state === 'included').length;
+  const completed = items.filter((i) => i.completion === READINESS_COMPLETION.DONE).length;
   const total = items.length;
   return {
     defined: total > 0,
     items,
+    completed,
+    inProgress: items.filter((i) => i.completion === READINESS_COMPLETION.IN_PROGRESS).length,
     closed,
     missing: items.filter((i) => i.state === 'missing').length,
     total,
-    percent: total > 0 ? Math.round((closed / total) * 100) : null,
+    percent: total > 0 ? Math.round((completed / total) * 100) : null,
+    coveragePercent: total > 0 ? Math.round((closed / total) * 100) : null,
   };
 }

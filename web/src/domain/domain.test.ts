@@ -167,15 +167,42 @@ describe('readiness (Book 04 §9, Book 10 §15)', () => {
     );
     expect(r.items.map((i) => i.state)).toEqual(['covered', 'included', 'covered', 'in_progress']);
     expect(r.items[1]?.includedByLabel).toBe('השכרת שטח');
-    expect(r.percent).toBe(75);
+    expect(r.coveragePercent).toBe(75);
     expect(r.closed).toBe(3);
+    // Coverage no longer drives the percentage: nothing was marked by hand yet.
+    expect(r.percent).toBe(0);
+    expect(r.completed).toBe(0);
+  });
+
+  it('RD-08 the percentage counts items marked בוצע, not items with an expense', () => {
+    const required: RequiredItem[] = [
+      { id: 'r1', categoryId: null, subcategoryId: 's1', completion: 'בוצע' },
+      { id: 'r2', categoryId: null, subcategoryId: 's2', completion: 'בטיפול' },
+      { id: 'r3', categoryId: null, subcategoryId: 's3' }, // no status yet → not started
+      { id: 'r4', categoryId: null, subcategoryId: 's4', completion: 'בוצע' },
+    ];
+    const r = buildReadiness(required, [expense({ id: 'e1', subcategoryId: 's3', agreedAmount: 1000, manualStatus: 'סוכם' })], [], labels);
+    expect(r.completed).toBe(2);
+    expect(r.inProgress).toBe(1);
+    expect(r.percent).toBe(50);
+    // the expense on s3 still reads as covered, and still counts as coverage
+    expect(r.items[2]?.state).toBe('covered');
+    expect(r.items[2]?.completion).toBe('לא התחיל');
+    expect(r.closed).toBe(1);
+    expect(r.coveragePercent).toBe(25);
+  });
+
+  it('RD-09 an item with no expense at all can still be marked בוצע', () => {
+    const r = buildReadiness([{ id: 'r', categoryId: null, subcategoryId: 's1', completion: 'בוצע' }], [], [], labels);
+    expect(r.items[0]?.state).toBe('missing'); // no money behind it — unchanged
+    expect(r.percent).toBe(100);
   });
 
   it('RD-03 nothing on the item → missing', () => {
     const r = buildReadiness([{ id: 'r', categoryId: null, subcategoryId: 's1' }], [], [], labels);
     expect(r.items[0]?.state).toBe('missing');
     expect(r.missing).toBe(1);
-    expect(r.percent).toBe(0); // 0% is real here: a list exists and nothing is closed
+    expect(r.percent).toBe(0); // 0% is real here: a list exists and nothing was done
   });
 
   it('RD-07 a closed expense outranks coverage (covered > included > in progress)', () => {

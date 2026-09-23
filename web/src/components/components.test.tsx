@@ -24,6 +24,12 @@ vi.mock('@/features/income/data/incomeRepository', async (orig) => ({
   listEventIncome: vi.fn(async () => []),
 }));
 
+const setRequiredItemStatus = vi.fn();
+vi.mock('@/features/readiness/data/readinessRepository', async (orig) => ({
+  ...(await orig<typeof import('@/features/readiness/data/readinessRepository')>()),
+  setRequiredItemStatus: (...args: unknown[]) => setRequiredItemStatus(...args),
+}));
+
 function wrap(ui: ReactNode, client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } })) {
   return render(
     <QueryClientProvider client={client}>
@@ -135,5 +141,30 @@ describe('J7 — save failure keeps the form (Book 10 §44, ADR-044)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'שמור' }));
     await waitFor(() => expect(screen.getByText('ההכנסה נשמרה')).toBeInTheDocument());
     expect(saveIncome).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'בר', quantity: 3, unitPrice: 99.9, isTicketIncome: false }));
+  });
+});
+
+describe('readiness checklist — marking work as done (user decision 2026-09-23)', () => {
+  it('one tap marks בוצע, sends it to the server and moves the percentage; money is untouched', async () => {
+    const { ReadinessSection } = await import('@/features/readiness/components/ReadinessSection');
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    client.setQueryData(qk.event.readiness('e1'), [
+      { id: 'r1', categoryId: null, subcategoryId: 's1' },
+      { id: 'r2', categoryId: null, subcategoryId: 's2' },
+    ]);
+    client.setQueryData(qk.event.expenses('e1'), []);
+    client.setQueryData(qk.categories, {
+      categories: [],
+      categoryById: new Map(),
+      subcategoryById: new Map([['s1', { id: 's1', name: 'הגברה' }], ['s2', { id: 's2', name: 'תאורה' }]]),
+      artistsCategoryId: 'c-art',
+    });
+    setRequiredItemStatus.mockResolvedValueOnce(undefined);
+
+    wrap(<ReadinessSection eventId="e1" />, client);
+    expect(await screen.findByText('0%')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /סמן כבוצע: הגברה/ }));
+    await waitFor(() => expect(setRequiredItemStatus).toHaveBeenCalledWith('r1', 'בוצע'));
   });
 });
